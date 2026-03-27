@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  content: ["./app/**/*.{js,ts,jsx,tsx,mdx}"],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       colors: {
@@ -9,8 +9,8 @@ const config: Config = {
         robroBlack: "#0d0d0d"
       },
       fontFamily: {
-        mono: ["var(--font-space-mono)", "monospace"],
-        display: ["Arial Black", "Arial", "sans-serif"]
+        mono: ["Space Mono", "monospace"],
+        display: ["Inter", "Arial Black", "Arial", "sans-serif"]
       },
       keyframes: {
         blink: {

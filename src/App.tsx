@@ -1,7 +1,4 @@
-"use client";
-
 import { useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
 
 const PUMP_FUN_URL = "https://pump.fun";
 
@@ -82,30 +79,20 @@ function BuyButton() {
       href={PUMP_FUN_URL}
       target="_blank"
       rel="noreferrer"
-      className="inline-block border border-robroGreen bg-robroGreen px-10 py-4 text-sm font-bold tracking-[0.1em] text-robroBlack transition duration-150 hover:bg-white hover:shadow-[0_0_22px_rgba(132,239,171,0.2)]"
+      className="cyber-button inline-block border border-robroGreen bg-robroGreen px-10 py-4 text-sm font-bold tracking-[0.1em] text-robroBlack transition duration-150 hover:bg-white hover:shadow-[0_0_22px_rgba(132,239,171,0.2)]"
     >
       BUY $ROBRO ON PUMP.FUN
     </a>
   );
 }
 
-function Placeholder({ label, className = "" }: { label: string; className?: string }) {
-  return (
-    <div
-      className={`grid place-items-center border border-dashed border-robroGreen/80 bg-[#111111] p-6 text-center text-xs uppercase tracking-[0.15em] text-robroGreen/90 ${className}`}
-    >
-      {label}
-    </div>
-  );
-}
-
 function NavBar() {
   return (
-    <header className="fixed top-0 z-50 h-14 w-full border-b border-robroGreen/30 bg-transparent px-6 md:px-12">
+    <header className="fixed top-0 z-50 h-14 w-full border-b border-robroGreen/30 bg-[#0d0d0d]/95 px-6 backdrop-blur-sm md:px-12">
       <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between">
         <div className="text-lg font-bold text-robroGreen">
           <span className="mr-2 inline-block align-middle">
-            <Image
+            <img
               src="/robrologo.png"
               alt="ROBRO logo"
               width={22}
@@ -156,13 +143,10 @@ function Hero() {
       <div className="mb-10 mt-8 w-full max-w-7xl">
         <div className="hero-dissolve relative mx-auto h-[340px] w-full max-w-[860px] overflow-hidden rounded-[42px] bg-[#111111] md:h-[500px]">
           <div className="absolute inset-0 z-0">
-            <Image
+            <img
               src="/layer1.png"
               alt="ROBRO base layer"
-              fill
-              priority
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 860px"
+              className="h-full w-full object-cover"
             />
           </div>
 
@@ -173,20 +157,14 @@ function Hero() {
           </div>
 
           <div className="absolute inset-0 z-20">
-            <Image
+            <img
               src="/layer2.png"
               alt="ROBRO foreground layer"
-              fill
-              priority
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 860px"
+              className="h-full w-full object-cover"
             />
           </div>
         </div>
       </div>
-      <p className="mt-12 animate-bounceSoft text-xs tracking-[0.1em] text-[#555555]">
-        ↓ scroll to read the report
-      </p>
     </section>
   );
 }
@@ -194,20 +172,17 @@ function Hero() {
 function WhoIsRobro() {
   return (
     <FadeSection className="mx-auto w-full max-w-7xl px-6 py-24 md:px-12">
-      <SectionLabel>{"// IDENTITY_REPORT.exe"}</SectionLabel>
+      <SectionLabel>{"// IDENTITY_REPORT.MD"}</SectionLabel>
       <div className="grid gap-8 md:grid-cols-2">
         <div className="relative aspect-square w-full overflow-hidden border border-robroGreen/80 bg-[#111111]">
-          <Image
+          <img
             src="/robroidentity.png"
             alt="ROBRO portrait"
-            fill
-            priority={false}
-            className="object-contain p-2"
-            sizes="(max-width: 768px) 100vw, 50vw"
+            className="h-full w-full object-contain p-2"
           />
         </div>
         <div className="space-y-6">
-          <div className="border-l border-robroGreen bg-[#111111] p-6 shadow-[0_0_12px_rgba(132,239,171,0.15),0_0_40px_rgba(132,239,171,0.05)]">
+          <div className="hover-lift border-l border-robroGreen bg-[#111111] p-6 shadow-[0_0_12px_rgba(132,239,171,0.15),0_0_40px_rgba(132,239,171,0.05)]">
             <pre className="whitespace-pre-wrap text-sm leading-7 text-robroGreen">
               {`DESIGNATION:    ROBRO
 SPECIES:        humanoid robot
@@ -249,7 +224,7 @@ function WhyRobot() {
 
   return (
     <FadeSection className="mx-auto w-full max-w-7xl px-6 py-24 md:px-12">
-      <SectionLabel>{"// running_comparison.exe"}</SectionLabel>
+      <SectionLabel>{"// RUNNING_COMPARISON.MD"}</SectionLabel>
       <h2 className="mb-8 font-display text-4xl uppercase leading-none text-white md:text-5xl">
         human devs vs. ROBRO
       </h2>
@@ -280,7 +255,7 @@ function WhyRobot() {
 function Tokenomics() {
   return (
     <FadeSection className="mx-auto w-full max-w-7xl px-6 py-24 md:px-12">
-      <SectionLabel>{"// TOKENOMICS_REPORT.log"}</SectionLabel>
+      <SectionLabel>{"// TOKENOMICS_REPORT.MD"}</SectionLabel>
       <div className="overflow-hidden border border-robroGreen/40 bg-[#101010]">
         <div className="flex items-center gap-2 border-b border-robroGreen/30 px-4 py-3">
           <span className="h-3 w-3 rounded-full bg-red-500" />
@@ -347,7 +322,7 @@ function Roadmap() {
 
   return (
     <FadeSection className="mx-auto w-full max-w-7xl px-6 py-24 md:px-12">
-      <SectionLabel>{"// boot_sequence.sh"}</SectionLabel>
+      <SectionLabel>{"// BOOT_SEQUENCE.MD"}</SectionLabel>
       <h2 className="mb-8 font-display text-4xl uppercase leading-none text-white md:text-5xl">
         THE ROBOT TAKEOVER
       </h2>
@@ -405,7 +380,7 @@ function Footer() {
       <div className="mx-auto grid w-full max-w-7xl gap-6 md:grid-cols-3 md:items-start">
         <div className="text-robroGreen">
           <span className="mr-2 inline-block align-middle">
-            <Image
+            <img
               src="/robrologo.png"
               alt="ROBRO logo"
               width={18}
@@ -438,7 +413,7 @@ function Footer() {
   );
 }
 
-export default function Home() {
+export default function App() {
   return (
     <main className="bg-robroBlack text-white">
       <NavBar />
