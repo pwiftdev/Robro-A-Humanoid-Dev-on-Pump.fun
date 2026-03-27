@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 const PUMP_FUN_URL = "https://pump.fun";
+const X_URL = "https://x.com/robro_sol";
 
 function useTypewriter(text: string, start: boolean, speed = 40) {
   const [value, setValue] = useState("");
@@ -73,13 +74,18 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-function BuyButton() {
+function BuyButton({
+  variant = "hero"
+}: {
+  variant?: "hero" | "closing";
+}) {
+  const isClosing = variant === "closing";
   return (
     <a
       href={PUMP_FUN_URL}
       target="_blank"
       rel="noreferrer"
-      className="cyber-button inline-block border border-robroGreen bg-robroGreen px-10 py-4 text-sm font-bold tracking-[0.1em] text-robroBlack transition duration-150 hover:bg-white hover:shadow-[0_0_22px_rgba(132,239,171,0.2)]"
+      className={`cyber-button inline-flex h-[52px] items-center justify-center border border-robroGreen bg-robroGreen px-5 text-base font-bold tracking-[0.1em] text-robroBlack transition duration-150 hover:bg-white hover:shadow-[0_0_22px_rgba(132,239,171,0.2)] ${isClosing ? "cta-pulse mx-auto min-w-[320px]" : ""}`}
     >
       BUY $ROBRO ON PUMP.FUN
     </a>
@@ -88,7 +94,7 @@ function BuyButton() {
 
 function NavBar() {
   return (
-    <header className="fixed top-0 z-50 h-14 w-full border-b border-robroGreen/30 bg-[#0d0d0d]/95 px-6 backdrop-blur-sm md:px-12">
+    <header className="fixed top-0 z-50 h-14 w-full border-b border-robroGreen/30 bg-[#111111]/95 px-6 backdrop-blur-sm md:px-12">
       <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between">
         <div className="text-lg font-bold text-robroGreen">
           <span className="mr-2 inline-block align-middle">
@@ -105,9 +111,6 @@ function NavBar() {
         <nav className="flex items-center gap-4 text-[13px] uppercase tracking-[0.08em] text-white md:gap-7">
           <a href="#" className="transition-colors hover:text-robroGreen">
             X/Twitter
-          </a>
-          <a href="#" className="transition-colors hover:text-robroGreen">
-            Telegram
           </a>
           <a
             href={PUMP_FUN_URL}
@@ -127,40 +130,36 @@ function Hero() {
   const typed = useTypewriter("> SYSTEM ONLINE. DEV LOADED. HUMANS: 0.", true, 40);
 
   return (
-    <section className="hero-grid scanlines relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-20 text-center md:px-12">
+    <section className="hero-grid scanlines relative flex min-h-0 flex-col items-center justify-start overflow-visible bg-[#111111] px-6 pt-20 text-center md:min-h-screen md:justify-center md:overflow-hidden md:px-12">
       <div aria-hidden className="hero-grid-plane" />
-      <p className="mb-8 min-h-5 text-[13px] tracking-[0.2em] text-robroGreen">{typed}</p>
+      <p className="mb-8 min-h-5 pb-[31px] pt-[31px] text-[13px] tracking-[0.2em] text-robroGreen">
+        {typed}
+      </p>
       <h1 className="font-display text-5xl uppercase leading-none text-white md:text-8xl">
         THE HUMANOID DEV
       </h1>
       <p className="mt-2 font-display text-4xl uppercase leading-none text-robroGreen md:text-7xl">
         $ROBRO
       </p>
-      <p className="mt-6 text-lg italic text-white/70">no humans. no rugs. just ROBRO.</p>
+      <p className="mt-6 text-lg italic text-white/70">
+        First Humanoid Robot to launch a token on Pump.fun.
+      </p>
       <div className="mt-8">
         <BuyButton />
       </div>
-      <div className="mb-10 mt-8 w-full max-w-7xl">
-        <div className="hero-dissolve relative mx-auto h-[340px] w-full max-w-[860px] overflow-hidden rounded-[42px] bg-[#111111] md:h-[500px]">
-          <div className="absolute inset-0 z-0">
-            <img
-              src="/layer1.png"
-              alt="ROBRO base layer"
-              className="h-full w-full object-cover"
-            />
-          </div>
-
-          <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
+      <div className="mt-8 w-full max-w-7xl md:mt-auto">
+        <div className="hero-dissolve relative mx-auto h-auto w-full max-w-[1120px] overflow-visible rounded-[42px] bg-transparent md:h-[650px] md:overflow-hidden">
+          <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
             <span className="depth-blob depth-blob-a" />
             <span className="depth-blob depth-blob-b" />
             <span className="depth-blob depth-blob-c" />
           </div>
 
-          <div className="absolute inset-0 z-20">
+          <div className="relative z-10 flex items-end justify-center md:absolute md:inset-0">
             <img
-              src="/layer2.png"
-              alt="ROBRO foreground layer"
-              className="h-full w-full object-cover"
+              src="/robottransp.png"
+              alt="ROBRO transparent hero"
+              className="block h-auto w-full object-contain md:h-full md:w-full"
             />
           </div>
         </div>
@@ -214,7 +213,7 @@ function WhyRobot() {
     () => [
       ["can rug at any time", "physically incapable of rugging"],
       ["goes offline, ghosts, disappears", "online 24/7 - no rest required"],
-      ["has a personal exit wallet", "holds 0% of supply. needs nothing."],
+      ["has a personal exit wallet", "10% locked forever. no exit route."],
       ["hypes, then dumps on you", "reports status. salutes. repeats."],
       ["doxxable, blackmailable, human", "no social security number. no feelings."],
       ["might get bored, move on", "has one directive. this is it."]
@@ -239,11 +238,15 @@ function WhyRobot() {
         </div>
         {rows.map((row, index) => (
           <div key={row[0]} className="grid grid-cols-2">
-            <div className={`px-4 py-4 text-sm ${index % 2 === 0 ? "bg-[#0d0d0d]" : "bg-[#111111]"}`}>
+            <div
+              className={`px-4 py-4 text-sm text-white/70 ${index % 2 === 0 ? "bg-[#0d0d0d]" : "bg-[#111111]"}`}
+            >
               {row[0]}
             </div>
-            <div className={`px-4 py-4 text-sm ${index % 2 === 0 ? "bg-[#0d0d0d]" : "bg-[#111111]"}`}>
-              {row[1]}
+            <div
+              className={`px-4 py-4 text-sm font-semibold text-robroGreen ${index % 2 === 0 ? "bg-[#0d0d0d]" : "bg-[#111111]"}`}
+            >
+              ✓ {row[1]}
             </div>
           </div>
         ))}
@@ -268,8 +271,10 @@ function Tokenomics() {
   CHAIN           Solana
   PLATFORM        pump.fun
   SUPPLY          1,000,000,000
-  DEV ALLOCATION  0%   // i am a robot. i need nothing.
+  ROBRO BUY       10% of supply (locked forever)
   TAX             0% buy / 0% sell
+  BUYBACKS        20% of generated fees (agentic on pump.fun)
+  TREASURY USE    80% fees -> marketing, IRL campaigns, listings
   CONTRACT        renounced at launch
   LIQUIDITY       locked at graduation
 
@@ -352,7 +357,7 @@ function CTA() {
   const typed = useTypewriter("> TRANSMISSION FROM ROBRO:", visible, 40);
   return (
     <section ref={ref} className="flex min-h-screen items-center px-6 py-24 md:px-12">
-      <div className="mx-auto w-full max-w-3xl">
+      <div className="mx-auto w-full max-w-3xl text-center">
         <p className="mb-8 min-h-5 text-sm tracking-[0.2em] text-robroGreen">{typed}</p>
         <div className="space-y-2 font-display text-2xl uppercase leading-tight text-white md:text-4xl">
           <p>{'"i have reviewed all available meme coins."'}</p>
@@ -364,10 +369,10 @@ function CTA() {
           - ROBRO, The Humanoid Dev
         </p>
         <div className="mt-10">
-          <BuyButton />
+          <BuyButton variant="closing" />
         </div>
         <p className="mt-4 text-xs tracking-[0.08em] text-[#555555]">
-          no presale. no team tokens. just ROBRO.
+          10% locked forever. 20% agentic buybacks. 80% growth campaigns and listings.
         </p>
       </div>
     </section>
@@ -414,8 +419,69 @@ function Footer() {
 }
 
 export default function App() {
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [showIntroModal, setShowIntroModal] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const doc = document.documentElement;
+      const scrollTop = doc.scrollTop;
+      const scrollHeight = doc.scrollHeight - doc.clientHeight;
+      const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+      setScrollProgress(progress);
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setShowIntroModal(true);
+    }, 2000);
+
+    return () => window.clearTimeout(timer);
+  }, []);
+
   return (
     <main className="bg-robroBlack text-white">
+      {showIntroModal ? (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 px-6">
+          <div className="w-full max-w-xl border border-robroGreen/60 bg-[#111111] p-6 shadow-[0_0_24px_rgba(132,239,171,0.2)] md:p-8">
+            <button
+              type="button"
+              aria-label="Close popup"
+              onClick={() => setShowIntroModal(false)}
+              className="mb-4 ml-auto block text-sm uppercase tracking-[0.1em] text-robroGreen/80 transition-colors hover:text-robroGreen"
+            >
+              close
+            </button>
+            <p className="text-lg leading-relaxed text-white md:text-xl">
+              Before you call $ROBRO a larp...
+              <br />
+              check out the IRL videos of $ROBRO on our X.
+            </p>
+            <p className="mt-4 font-display text-2xl uppercase text-robroGreen md:text-3xl">
+              First of its kind
+            </p>
+            <a
+              href={X_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-6 inline-flex h-11 items-center justify-center border border-robroGreen bg-robroGreen px-5 text-sm font-bold uppercase tracking-[0.1em] text-robroBlack transition duration-150 hover:bg-white"
+            >
+              Visit X
+            </a>
+          </div>
+        </div>
+      ) : null}
+      <div className="fixed left-0 top-0 z-[70] h-[2px] w-full bg-transparent">
+        <div
+          className="h-full bg-robroGreen shadow-[0_0_8px_rgba(132,239,171,0.6)] transition-[width] duration-75"
+          style={{ width: `${scrollProgress}%` }}
+        />
+      </div>
       <NavBar />
       <Hero />
       <WhoIsRobro />
