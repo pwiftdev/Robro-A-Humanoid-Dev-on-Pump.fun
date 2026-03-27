@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 
 const PUMP_FUN_URL = "https://pump.fun";
 
@@ -60,7 +61,7 @@ function FadeSection({
   return (
     <section
       ref={ref}
-      className={`${className} ${visible ? "animate-fadeUp" : "opacity-0 translate-y-5"}`}
+      className={`${className} ${visible ? "animate-fadeUp" : "opacity-100"}`}
     >
       {children}
     </section>
@@ -103,7 +104,16 @@ function NavBar() {
     <header className="fixed top-0 z-50 h-14 w-full border-b border-robroGreen/30 bg-transparent px-6 md:px-12">
       <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between">
         <div className="text-lg font-bold text-robroGreen">
-          <span className="cursor">█</span> $ROBRO
+          <span className="mr-2 inline-block align-middle">
+            <Image
+              src="/robrologo.png"
+              alt="ROBRO logo"
+              width={22}
+              height={22}
+              className="rounded-full object-cover"
+            />
+          </span>
+          <span className="align-middle">$ROBRO</span>
         </div>
         <nav className="flex items-center gap-4 text-[13px] uppercase tracking-[0.08em] text-white md:gap-7">
           <a href="#" className="transition-colors hover:text-robroGreen">
@@ -128,15 +138,11 @@ function NavBar() {
 
 function Hero() {
   const typed = useTypewriter("> SYSTEM ONLINE. DEV LOADED. HUMANS: 0.", true, 40);
+
   return (
-    <section className="scanlines flex min-h-screen flex-col items-center justify-center px-6 pt-20 text-center md:px-12">
+    <section className="hero-grid scanlines relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-20 text-center md:px-12">
+      <div aria-hidden className="hero-grid-plane" />
       <p className="mb-8 min-h-5 text-[13px] tracking-[0.2em] text-robroGreen">{typed}</p>
-      <div className="mb-10 w-full max-w-6xl">
-        <Placeholder
-          label="IMAGE PLACEHOLDER — ROBRO HERO PHOTO (~600x700)"
-          className="mx-auto h-[320px] w-full max-w-[640px] md:h-[420px]"
-        />
-      </div>
       <h1 className="font-display text-5xl uppercase leading-none text-white md:text-8xl">
         THE HUMANOID DEV
       </h1>
@@ -146,6 +152,37 @@ function Hero() {
       <p className="mt-6 text-lg italic text-white/70">no humans. no rugs. just ROBRO.</p>
       <div className="mt-8">
         <BuyButton />
+      </div>
+      <div className="mb-10 mt-8 w-full max-w-7xl">
+        <div className="hero-dissolve relative mx-auto h-[340px] w-full max-w-[860px] overflow-hidden rounded-[42px] bg-[#111111] md:h-[500px]">
+          <div className="absolute inset-0 z-0">
+            <Image
+              src="/layer1.png"
+              alt="ROBRO base layer"
+              fill
+              priority
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 860px"
+            />
+          </div>
+
+          <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
+            <span className="depth-blob depth-blob-a" />
+            <span className="depth-blob depth-blob-b" />
+            <span className="depth-blob depth-blob-c" />
+          </div>
+
+          <div className="absolute inset-0 z-20">
+            <Image
+              src="/layer2.png"
+              alt="ROBRO foreground layer"
+              fill
+              priority
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 860px"
+            />
+          </div>
+        </div>
       </div>
       <p className="mt-12 animate-bounceSoft text-xs tracking-[0.1em] text-[#555555]">
         ↓ scroll to read the report
@@ -159,10 +196,16 @@ function WhoIsRobro() {
     <FadeSection className="mx-auto w-full max-w-7xl px-6 py-24 md:px-12">
       <SectionLabel>{"// IDENTITY_REPORT.exe"}</SectionLabel>
       <div className="grid gap-8 md:grid-cols-2">
-        <Placeholder
-          label="IMAGE PLACEHOLDER — ROBRO PORTRAIT (400x400)"
-          className="h-[360px] md:h-[400px]"
-        />
+        <div className="relative aspect-square w-full overflow-hidden border border-robroGreen/80 bg-[#111111]">
+          <Image
+            src="/robroidentity.png"
+            alt="ROBRO portrait"
+            fill
+            priority={false}
+            className="object-contain p-2"
+            sizes="(max-width: 768px) 100vw, 50vw"
+          />
+        </div>
         <div className="space-y-6">
           <div className="border-l border-robroGreen bg-[#111111] p-6 shadow-[0_0_12px_rgba(132,239,171,0.15),0_0_40px_rgba(132,239,171,0.05)]">
             <pre className="whitespace-pre-wrap text-sm leading-7 text-robroGreen">
@@ -351,10 +394,6 @@ function CTA() {
         <p className="mt-4 text-xs tracking-[0.08em] text-[#555555]">
           no presale. no team tokens. just ROBRO.
         </p>
-        <Placeholder
-          label="IMAGE PLACEHOLDER — OPTIONAL SALUTING ROBRO"
-          className="mt-10 h-[280px] w-full bg-black/60"
-        />
       </div>
     </section>
   );
@@ -365,7 +404,16 @@ function Footer() {
     <footer className="border-t border-robroGreen/20 bg-robroBlack px-6 py-10 text-[13px] md:px-12">
       <div className="mx-auto grid w-full max-w-7xl gap-6 md:grid-cols-3 md:items-start">
         <div className="text-robroGreen">
-          <span className="cursor">█</span> $ROBRO
+          <span className="mr-2 inline-block align-middle">
+            <Image
+              src="/robrologo.png"
+              alt="ROBRO logo"
+              width={18}
+              height={18}
+              className="rounded-full object-cover"
+            />
+          </span>
+          <span className="align-middle">$ROBRO</span>
         </div>
         <div className="flex flex-wrap gap-4 uppercase tracking-[0.08em]">
           <a href="#" className="hover:text-robroGreen">
