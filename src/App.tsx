@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 const PUMP_FUN_URL = "https://pump.fun";
-const X_URL = "https://x.com/robro_sol";
+const X_URL = "https://x.com/HumanoidRobro";
 
 function useTypewriter(text: string, start: boolean, speed = 40) {
   const [value, setValue] = useState("");
@@ -109,7 +109,12 @@ function NavBar() {
           <span className="align-middle font-black tracking-[0.04em] text-white">ROBRO</span>
         </div>
         <nav className="flex items-center gap-4 text-[13px] uppercase tracking-[0.08em] text-white md:gap-7">
-          <a href="#" className="transition-colors hover:text-robroGreen">
+          <a
+            href={X_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="transition-colors hover:text-robroGreen"
+          >
             X/Twitter
           </a>
           <a
@@ -399,7 +404,7 @@ function Footer() {
           <span className="align-middle">$ROBRO</span>
         </div>
         <div className="flex flex-wrap gap-4 uppercase tracking-[0.08em]">
-          <a href="#" className="hover:text-robroGreen">
+          <a href={X_URL} target="_blank" rel="noreferrer" className="hover:text-robroGreen">
             X
           </a>
           <a href="#" className="hover:text-robroGreen">
