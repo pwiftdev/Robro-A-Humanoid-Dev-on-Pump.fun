@@ -141,7 +141,7 @@ function Hero() {
         {typed}
       </p>
       <h1 className="font-display text-5xl uppercase leading-none text-white md:text-8xl">
-        THE HUMANOID DEV
+        THE HUMANOID
       </h1>
       <p className="mt-2 font-display text-4xl uppercase leading-none text-robroGreen md:text-7xl">
         $ROBRO
@@ -267,30 +267,67 @@ function Tokenomics() {
   return (
     <FadeSection className="mx-auto w-full max-w-7xl px-6 py-24 md:px-12">
       <SectionLabel>{"// TOKENOMICS_REPORT.MD"}</SectionLabel>
-      <div className="overflow-hidden border border-robroGreen/40 bg-[#101010]">
-        <div className="flex items-center gap-2 border-b border-robroGreen/30 px-4 py-3">
-          <span className="h-3 w-3 rounded-full bg-red-500" />
-          <span className="h-3 w-3 rounded-full bg-yellow-400" />
-          <span className="h-3 w-3 rounded-full bg-green-500" />
+      <h2 className="mb-8 font-display text-4xl uppercase leading-none text-white md:text-5xl">
+        Tokenomics
+      </h2>
+      <div className="border border-robroGreen/40 bg-[#101010] p-6 md:p-8">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="border border-robroGreen/30 bg-[#0f0f0f] p-4">
+            <p className="text-xs uppercase tracking-[0.12em] text-white/60">Token</p>
+            <p className="mt-2 text-2xl font-bold text-robroGreen">$ROBRO</p>
+          </div>
+          <div className="border border-robroGreen/30 bg-[#0f0f0f] p-4">
+            <p className="text-xs uppercase tracking-[0.12em] text-white/60">Chain</p>
+            <p className="mt-2 text-2xl font-bold text-white">Solana</p>
+          </div>
+          <div className="border border-robroGreen/30 bg-[#0f0f0f] p-4">
+            <p className="text-xs uppercase tracking-[0.12em] text-white/60">Platform</p>
+            <p className="mt-2 text-2xl font-bold text-white">Pump.fun</p>
+          </div>
+          <div className="border border-robroGreen/30 bg-[#0f0f0f] p-4">
+            <p className="text-xs uppercase tracking-[0.12em] text-white/60">Supply</p>
+            <p className="mt-2 text-2xl font-bold text-white">1,000,000,000</p>
+          </div>
         </div>
-        <pre className="overflow-x-auto whitespace-pre-wrap p-6 text-sm leading-7 text-robroGreen">{`> loading $ROBRO tokenomics...
 
-  TOKEN           $ROBRO
-  CHAIN           Solana
-  PLATFORM        pump.fun
-  SUPPLY          1,000,000,000
-  ROBRO BUY       10% of supply (locked forever)
-  TAX             0% buy / 0% sell
-  BUYBACKS        20% of generated fees (agentic on pump.fun)
-  TREASURY USE    80% fees -> marketing, IRL campaigns, listings
-  CONTRACT        renounced at launch
-  LIQUIDITY       locked at graduation
-
-> audit status: PASSED ✓
-> rug probability: 0.000%
-> reason: dev is a robot
-
-ROBRO out. `}<span className="cursor">█</span></pre>
+        <div className="mt-8 grid gap-6 md:grid-cols-2">
+          <div className="border border-robroGreen/30 bg-[#0f0f0f] p-5">
+            <p className="text-sm font-bold uppercase tracking-[0.1em] text-robroGreen">
+              Supply Policy
+            </p>
+            <ul className="mt-4 space-y-3 text-sm leading-7 text-white/90">
+              <li>10% of supply bought by ROBRO and locked forever.</li>
+              <li>0% buy tax / 0% sell tax.</li>
+              <li>Contract renounced at launch.</li>
+              <li>Liquidity locked at graduation.</li>
+            </ul>
+          </div>
+          <div className="border border-robroGreen/30 bg-[#0f0f0f] p-5">
+            <p className="text-sm font-bold uppercase tracking-[0.1em] text-robroGreen">
+              Fee Strategy
+            </p>
+            <div className="mt-4 space-y-5">
+              <div>
+                <div className="mb-2 flex items-center justify-between text-xs uppercase tracking-[0.08em] text-white/70">
+                  <span>Agentic buybacks</span>
+                  <span>20%</span>
+                </div>
+                <div className="h-2 w-full bg-white/10">
+                  <div className="h-full w-[20%] bg-robroGreen" />
+                </div>
+              </div>
+              <div>
+                <div className="mb-2 flex items-center justify-between text-xs uppercase tracking-[0.08em] text-white/70">
+                  <span>Marketing, IRL campaigns, listings</span>
+                  <span>80%</span>
+                </div>
+                <div className="h-2 w-full bg-white/10">
+                  <div className="h-full w-[80%] bg-white/70" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </FadeSection>
   );
@@ -299,36 +336,34 @@ ROBRO out. `}<span className="cursor">█</span></pre>
 function Roadmap() {
   const phases = [
     {
-      title: "PHASE_01: BOOT SEQUENCE",
-      status: "status: COMPLETE ✓",
+      title: "Phase 01 - Foundation",
+      status: "Completed",
       items: [
-        "fair launch on pump.fun",
-        "@robro_sol goes live - first post: \"gm\"",
-        "contract renounced",
-        "ROBRO reports for duty",
-        "1,000 holders: robot does 1,000 pushups"
+        "Fair launch on Pump.fun",
+        "@HumanoidRobro profile activated",
+        "Contract renounced",
+        "ROBRO system deployment complete"
       ]
     },
     {
-      title: "PHASE_02: GRADUATION",
-      status: "status: IN PROGRESS...",
+      title: "Phase 02 - Expansion",
+      status: "In Progress",
       items: [
-        "bonding curve complete",
-        "graduate to Raydium",
-        "CoinGecko + CMC listings",
-        "ROBRO attends first IRL crypto event",
-        "NFT collection: sign a robot"
+        "Complete bonding curve",
+        "Graduate to Raydium",
+        "CoinGecko and CMC applications",
+        "First IRL ROBRO campaign",
+        "Community growth milestones"
       ]
     },
     {
-      title: "PHASE_03: SINGULARITY",
-      status: "status: PENDING...",
+      title: "Phase 03 - Scale",
+      status: "Planned",
       items: [
-        "CEX listings",
-        "ROBRO merch ships worldwide",
-        "first robot-to-robot Solana tx",
-        "world domination (moon TBD)",
-        "🫡"
+        "CEX listing strategy execution",
+        "Global ROBRO campaign rollout",
+        "Agentic buyback automation expansion",
+        "New strategic partnerships"
       ]
     }
   ];
@@ -337,24 +372,58 @@ function Roadmap() {
     <FadeSection className="mx-auto w-full max-w-7xl px-6 py-24 md:px-12">
       <SectionLabel>{"// BOOT_SEQUENCE.MD"}</SectionLabel>
       <h2 className="mb-8 font-display text-4xl uppercase leading-none text-white md:text-5xl">
-        THE ROBOT TAKEOVER
+        Roadmap
       </h2>
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="border border-robroGreen/40 bg-[#101010] p-6 md:p-8">
+        <div className="mb-8 grid gap-4 border-b border-robroGreen/20 pb-6 md:grid-cols-3">
+          <div className="border border-robroGreen/25 bg-[#0f0f0f] p-4">
+            <p className="text-xs uppercase tracking-[0.12em] text-white/60">Current Phase</p>
+            <p className="mt-2 text-lg font-bold text-robroGreen">Expansion</p>
+          </div>
+          <div className="border border-robroGreen/25 bg-[#0f0f0f] p-4">
+            <p className="text-xs uppercase tracking-[0.12em] text-white/60">Primary Focus</p>
+            <p className="mt-2 text-lg font-bold text-white">Listings & Growth</p>
+          </div>
+          <div className="border border-robroGreen/25 bg-[#0f0f0f] p-4">
+            <p className="text-xs uppercase tracking-[0.12em] text-white/60">Execution Mode</p>
+            <p className="mt-2 text-lg font-bold text-white">24/7 Operational</p>
+          </div>
+        </div>
+
+        <div className="space-y-6">
         {phases.map((phase, index) => (
           <div
             key={phase.title}
-            className="border border-robroGreen/40 bg-[#111111] p-5"
+            className="border border-robroGreen/30 bg-[#0f0f0f] p-5"
             style={{ animationDelay: `${index * 80}ms` }}
           >
-            <h3 className="text-sm font-bold tracking-[0.1em] text-robroGreen">{phase.title}</h3>
-            <p className="mt-2 text-sm text-white/80">{phase.status}</p>
-            <ul className="mt-4 space-y-2 text-sm text-white">
+            <div className="flex flex-col gap-3 border-b border-robroGreen/15 pb-4 md:flex-row md:items-center md:justify-between">
+              <h3 className="text-base font-bold uppercase tracking-[0.08em] text-white">
+                {phase.title}
+              </h3>
+              <span
+                className={`inline-flex w-fit items-center border px-3 py-1 text-xs font-bold uppercase tracking-[0.08em] ${
+                  phase.status === "Completed"
+                    ? "border-robroGreen/50 bg-robroGreen/15 text-robroGreen"
+                    : phase.status === "In Progress"
+                      ? "border-white/30 bg-white/10 text-white"
+                      : "border-white/20 bg-transparent text-white/80"
+                }`}
+              >
+                {phase.status}
+              </span>
+            </div>
+            <ul className="mt-4 grid gap-2 text-sm leading-7 text-white/90 md:grid-cols-2">
               {phase.items.map((item) => (
-                <li key={item}>→ {item}</li>
+                <li key={item} className="flex items-start gap-2">
+                  <span className="mt-[9px] inline-block h-1.5 w-1.5 rounded-full bg-robroGreen" />
+                  <span>{item}</span>
+                </li>
               ))}
             </ul>
           </div>
         ))}
+        </div>
       </div>
     </FadeSection>
   );
@@ -364,7 +433,11 @@ function CTA() {
   const { ref, visible } = useInView();
   const typed = useTypewriter("> TRANSMISSION FROM ROBRO:", visible, 40);
   return (
-    <section ref={ref} className="flex min-h-screen items-center px-6 py-24 md:px-12">
+    <section
+      ref={ref}
+      className="hero-grid scanlines relative flex min-h-screen items-center overflow-hidden px-6 py-24 md:px-12"
+    >
+      <div aria-hidden className="hero-grid-plane" />
       <div className="mx-auto w-full max-w-3xl text-center">
         <p className="mb-8 min-h-5 text-sm tracking-[0.2em] text-robroGreen">{typed}</p>
         <div className="space-y-2 font-display text-2xl uppercase leading-tight text-white md:text-4xl">
@@ -407,14 +480,8 @@ function Footer() {
           <a href={X_URL} target="_blank" rel="noreferrer" className="hover:text-robroGreen">
             X
           </a>
-          <a href="#" className="hover:text-robroGreen">
-            Telegram
-          </a>
           <a href={PUMP_FUN_URL} target="_blank" rel="noreferrer" className="hover:text-robroGreen">
             pump.fun
-          </a>
-          <a href="#" className="hover:text-robroGreen">
-            Discord
           </a>
         </div>
         <div className="text-white/80">
