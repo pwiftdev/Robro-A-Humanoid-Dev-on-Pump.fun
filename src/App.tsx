@@ -106,7 +106,7 @@ function NavBar() {
               className="rounded-full object-cover"
             />
           </span>
-          <span className="align-middle">$ROBRO</span>
+          <span className="align-middle font-black tracking-[0.04em] text-white">ROBRO</span>
         </div>
         <nav className="flex items-center gap-4 text-[13px] uppercase tracking-[0.08em] text-white md:gap-7">
           <a href="#" className="transition-colors hover:text-robroGreen">
@@ -186,21 +186,24 @@ function WhoIsRobro() {
               {`DESIGNATION:    ROBRO
 SPECIES:        humanoid robot
 ROLE:           lead developer, $ROBRO
+DEPLOYED BY:    robotics veterans, Slovenia (EU)
 RUG COUNT:      0
 SLEEP REQUIRED: false
 GREED MODULE:   not installed
-HUMANS ON TEAM: 0
+HUMANS ON TEAM: veteran operators only
 STATUS:         OPERATIONAL  ●`}
             </pre>
           </div>
           <p className="text-base leading-7 text-white">
-            ROBRO was deployed when it became clear that human developers had a critical flaw:
-            they could rug. ROBRO cannot. He has no wallet of his own. He has no exit strategy.
-            He was built for one purpose: to be the most reliable dev in the history of pump.fun.
+            ROBRO was deployed by a team of veterans in the robotics field in Slovenia, EU.
+            During development, ROBRO formed one clear thought: test cryptocurrency in the wild.
+            The team made that idea real by creating a dedicated skill set that lets ROBRO
+            interact with the blockchain directly.
           </p>
           <p className="text-base leading-7 text-white">
-            He does not sleep. He does not ghost the community. He posts at 3am because he does
-            not know what 3am means.
+            After evaluating launch paths, ROBRO chose pump.fun as mission control. The result is
+            a live humanoid-driven token experiment: real robotics, real onchain actions, and
+            transparent execution.
           </p>
         </div>
       </div>
