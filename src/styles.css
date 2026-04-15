@@ -47,15 +47,73 @@ a {
   background: radial-gradient(circle at 50% 40%, rgba(14, 30, 23, 0.55), #020403 74%);
   opacity: 1;
   transition: opacity 320ms ease;
+  overflow: hidden;
 }
 
 .loader-overlay--leaving {
   opacity: 0;
 }
 
+.loader-overlay::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(190, 255, 218, 0.18), rgba(190, 255, 218, 0) 52%),
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      rgba(180, 255, 210, 0.08) 0px,
+      rgba(180, 255, 210, 0.08) 1px,
+      rgba(180, 255, 210, 0) 2px,
+      rgba(180, 255, 210, 0) 8px
+    );
+  opacity: 0;
+  transform: scale(0.78);
+}
+
+.loader-overlay--warping::before {
+  animation: loaderWarpPulse 1450ms cubic-bezier(0.14, 0.72, 0.18, 1) forwards;
+}
+
 .loader-canvas {
   position: absolute;
   inset: 0;
+}
+
+.loader-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  pointer-events: none;
+}
+
+.loader-fallback-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  background: rgba(132, 239, 171, 0.9);
+  box-shadow: 0 0 24px rgba(132, 239, 171, 0.55);
+  animation: loaderDotPulse 900ms ease-in-out infinite;
+}
+
+.loader-fallback-dot:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.loader-fallback-dot:nth-child(3) {
+  animation-delay: 240ms;
+}
+
+.loader-fallback-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .loader-canvas canvas {
@@ -448,6 +506,41 @@ a {
   50% {
     opacity: 0.85;
     filter: blur(0.3px);
+  }
+}
+
+@keyframes loaderDotPulse {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-8px) scale(1.06);
+    opacity: 1;
+  }
+}
+
+@keyframes loaderWarpPulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.78);
+    filter: blur(0);
+  }
+  18% {
+    opacity: 0.35;
+    transform: scale(0.9);
+    filter: blur(0.3px);
+  }
+  52% {
+    opacity: 0.95;
+    transform: scale(1.55);
+    filter: blur(0.8px);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.25);
+    filter: blur(1.3px);
   }
 }
 
