@@ -457,6 +457,10 @@ function AppShell() {
         id="top"
         className="relative z-10 mx-auto w-full max-w-[1240px] px-6 pb-20 pt-10 md:px-10 md:pb-24 md:pt-14"
       >
+        <p className="reveal text-xs uppercase tracking-[0.2em] text-robroGreen/90">
+          Contract address: TBA
+        </p>
+
         {/* Issue line */}
         <div className="reveal issue-line">
           <span className="issue-line__left">
@@ -558,6 +562,136 @@ function AppShell() {
               <div>
                 <p className="spec__label">Off switch</p>
                 <p className="spec__value">None</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ---------- Robro tech ---------- */}
+      <section id="tech" className="relative z-10 hairline-top py-24 md:py-32">
+        <div className="mx-auto w-full max-w-[1240px] px-6 md:px-10">
+          <div className="reveal flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <div className="max-w-2xl">
+              <Eyebrow index="02" label="Robro tech" accent />
+              <h2 className="display-lg mt-5">
+                <span className="text-gradient">One persona.</span>
+                <br />
+                <span className="text-gradient">Two stacks.</span>
+              </h2>
+            </div>
+            <p className="lead max-w-md">
+              Robro isn&apos;t a mascot. He&apos;s a full system: a trained persona wired into
+              Pump.fun&apos;s agentic tools and a 35K humanoid that shows up in the real world.
+            </p>
+          </div>
+
+          <div className="mt-14 grid gap-8 lg:grid-cols-2 lg:gap-10">
+            {/* Software */}
+            <div className="reveal hud-card relative overflow-hidden rounded-2xl border border-robroGreen/30 p-8 md:p-10">
+              <div className="flex items-center justify-between">
+                <p className="text-xs uppercase tracking-[0.22em] text-robroGreen/90">// Software</p>
+                <span className="numeric text-[10px] uppercase tracking-[0.22em] text-white/40">
+                  Stack · v1
+                </span>
+              </div>
+              <h3 className="mt-4 font-display text-2xl uppercase leading-tight md:text-3xl">
+                The brain, the voice, the hands on-chain.
+              </h3>
+
+              <ul className="mt-8 space-y-6">
+                <li className="grid grid-cols-[auto_1fr] gap-5">
+                  <span className="numeric text-[11px] tracking-[0.2em] text-white/40">01</span>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.22em] text-white/70">
+                      Pump.fun agentic layer
+                    </p>
+                    <p className="lead mt-2">
+                      A fine-tuned Robro persona with direct access to Pump.fun&apos;s agentic
+                      toolkit &mdash; executes <b>buybacks</b>, <b>fee claims</b>, and{" "}
+                      <b>token buys</b> without a human in the loop.
+                    </p>
+                  </div>
+                </li>
+                <li className="grid grid-cols-[auto_1fr] gap-5">
+                  <span className="numeric text-[11px] tracking-[0.2em] text-white/40">02</span>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.22em] text-white/70">
+                      Autonomous X account
+                    </p>
+                    <p className="lead mt-2">
+                      An automated X account driven end-to-end by the Robro persona &mdash; posts,
+                      replies, and reacts on its own cadence.
+                    </p>
+                  </div>
+                </li>
+                <li className="grid grid-cols-[auto_1fr] gap-5">
+                  <span className="numeric text-[11px] tracking-[0.2em] text-white/40">03</span>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.22em] text-white/70">
+                      Voice cognitive layer
+                    </p>
+                    <p className="lead mt-2">
+                      A real-time voice + cognition stack that plugs the persona straight into the
+                      Unitree humanoid &mdash; Robro hears, thinks, and speaks in the room.
+                    </p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            {/* Hardware */}
+            <div className="reveal hud-card relative overflow-hidden rounded-2xl border border-robroGreen/30 p-8 md:p-10">
+              <div className="flex items-center justify-between">
+                <p className="text-xs uppercase tracking-[0.22em] text-robroGreen/90">// Hardware</p>
+                <span className="numeric text-[10px] uppercase tracking-[0.22em] text-white/40">
+                  IRL · deployed
+                </span>
+              </div>
+              <h3 className="mt-4 font-display text-2xl uppercase leading-tight md:text-3xl">
+                A chassis in the real world.
+              </h3>
+
+              <ul className="mt-8 space-y-6">
+                <li className="grid grid-cols-[auto_1fr] gap-5">
+                  <span className="numeric text-[11px] tracking-[0.2em] text-white/40">01</span>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.22em] text-white/70">
+                      Unitree humanoid
+                    </p>
+                    <p className="lead mt-2">
+                      A production Unitree humanoid &mdash; <b className="numeric">$35,000</b>{" "}
+                      of real hardware, wired to a Solana wallet and walking on two legs.
+                    </p>
+                  </div>
+                </li>
+                <li className="grid grid-cols-[auto_1fr] gap-5">
+                  <span className="numeric text-[11px] tracking-[0.2em] text-white/40">02</span>
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.22em] text-white/70">
+                      Merch + Pump.fun cap
+                    </p>
+                    <p className="lead mt-2">
+                      Robro-branded marketing merch and an official Pump.fun cap &mdash; worn by
+                      the robot, shipped into the world as proof it&apos;s real.
+                    </p>
+                  </div>
+                </li>
+              </ul>
+
+              <div className="mt-10 grid grid-cols-3 gap-4 border-t border-white/10 pt-6">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-white/50">Capex</p>
+                  <p className="numeric mt-1 text-lg">$35K</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-white/50">Uptime</p>
+                  <p className="numeric mt-1 text-lg">24 / 7</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-white/50">Operators</p>
+                  <p className="numeric mt-1 text-lg">0</p>
+                </div>
               </div>
             </div>
           </div>
