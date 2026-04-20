@@ -6,11 +6,24 @@ const config: Config = {
     extend: {
       colors: {
         robroGreen: "#84EFAB",
-        robroBlack: "#0d0d0d"
+        robroBlack: "#0d0d0d",
+        ink: {
+          950: "#07090a",
+          900: "#0b0d0e",
+          800: "#101314",
+          700: "#171b1c",
+          600: "#1f2425"
+        }
       },
       fontFamily: {
-        mono: ["Space Mono", "monospace"],
-        display: ["Inter", "Arial Black", "Arial", "sans-serif"]
+        mono: ["JetBrains Mono", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+        display: ["Inter Tight", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        serif: ["Instrument Serif", "ui-serif", "Georgia", "serif"]
+      },
+      letterSpacing: {
+        "label": "0.18em",
+        "tightish": "-0.01em",
+        "tightest": "-0.035em"
       },
       keyframes: {
         blink: {
@@ -18,18 +31,13 @@ const config: Config = {
           "50%": { opacity: "0" }
         },
         fadeUp: {
-          from: { opacity: "0", transform: "translateY(20px)" },
+          from: { opacity: "0", transform: "translateY(12px)" },
           to: { opacity: "1", transform: "translateY(0)" }
-        },
-        bounceSoft: {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(6px)" }
         }
       },
       animation: {
-        blink: "blink 800ms step-end infinite",
-        fadeUp: "fadeUp 400ms ease-out both",
-        bounceSoft: "bounceSoft 1.6s ease-in-out infinite"
+        blink: "blink 1.1s steps(2, end) infinite",
+        fadeUp: "fadeUp 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both"
       }
     }
   },

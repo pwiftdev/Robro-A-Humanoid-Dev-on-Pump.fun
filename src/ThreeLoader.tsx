@@ -9,14 +9,12 @@ type DotDatum = {
   current: THREE.Vector3;
   target: THREE.Vector3;
   velocity: THREE.Vector3;
-  warpBias: number;
 };
 
-const ASSEMBLE_DURATION_MS = 6200;
-const HOLD_DURATION_MS = 1700;
-const DISPERSE_DURATION_MS = 2600;
-const WARP_DURATION_MS = 2100;
-const TOTAL_DURATION_MS = ASSEMBLE_DURATION_MS + HOLD_DURATION_MS + DISPERSE_DURATION_MS + WARP_DURATION_MS;
+const ASSEMBLE_DURATION_MS = 3000;
+const HOLD_DURATION_MS = 500;
+const DISPERSE_DURATION_MS = 1100;
+const TOTAL_DURATION_MS = ASSEMBLE_DURATION_MS + HOLD_DURATION_MS + DISPERSE_DURATION_MS;
 
 function clamp01(value: number) {
   return Math.max(0, Math.min(1, value));
@@ -113,9 +111,7 @@ function FallbackParticleText() {
       const elapsed = performance.now() - startedAt;
       const tAssemble = smoothstep(elapsed / ASSEMBLE_DURATION_MS);
       const disperseStart = ASSEMBLE_DURATION_MS + HOLD_DURATION_MS;
-      const warpStart = disperseStart + DISPERSE_DURATION_MS;
       const tDisperse = smoothstep((elapsed - disperseStart) / DISPERSE_DURATION_MS);
-      const tWarp = smoothstep((elapsed - warpStart) / WARP_DURATION_MS);
       const width = window.innerWidth;
       const height = window.innerHeight;
 
@@ -133,44 +129,24 @@ function FallbackParticleText() {
       ctx.fillStyle = glow;
       ctx.fillRect(0, 0, width, height);
       ctx.fillStyle = "rgba(132, 239, 171, 0.9)";
-      const cx = width * 0.5;
-      const cy = height * 0.5;
 
       for (let i = 0; i < particles.length; i += 1) {
         const p = particles[i];
-        if (tDisperse <= 0 && tWarp <= 0) {
+        if (tDisperse <= 0) {
           const k = 0.032 + tAssemble * 0.085;
           p.x += (p.tx - p.x) * k;
           p.y += (p.ty - p.y) * k;
           const drift = Math.sin(elapsed * 0.0014 + i * 0.07) * (0.14 + tAssemble * 0.22);
           p.y += drift;
-        } else if (tWarp <= 0) {
+        } else {
           p.x += p.vx * (1.4 + tDisperse * 4.3);
           p.y += p.vy * (1.4 + tDisperse * 4.3);
-        } else {
-          p.x += p.vx * (3.2 + tWarp * 11);
-          p.y += p.vy * (3.2 + tWarp * 11);
         }
 
-        const warpScale = 1 + tWarp * tWarp * 5.4;
-        const drawX = cx + (p.x - cx) * warpScale;
-        const drawY = cy + (p.y - cy) * warpScale;
-        const prevScale = Math.max(1, warpScale - 0.28 * tWarp);
-        const prevX = cx + (p.x - cx) * prevScale;
-        const prevY = cy + (p.y - cy) * prevScale;
-        const size = (0.9 + p.z * 1.45) * (1 + tWarp * 1.8);
-        const alphaBase = tWarp > 0 ? 0.88 * (1 - tWarp * 0.7) : tDisperse > 0 ? 0.9 * (1 - tDisperse) : 0.9;
-        ctx.globalAlpha = alphaBase;
-        if (tWarp > 0.05) {
-          ctx.lineWidth = Math.max(0.4, size * 0.33);
-          ctx.strokeStyle = "rgba(200, 255, 220, 0.55)";
-          ctx.beginPath();
-          ctx.moveTo(prevX, prevY);
-          ctx.lineTo(drawX, drawY);
-          ctx.stroke();
-        }
+        const size = 0.9 + p.z * 1.45;
+        ctx.globalAlpha = tDisperse > 0 ? 0.9 * (1 - tDisperse) : 0.9;
         ctx.beginPath();
-        ctx.arc(drawX, drawY, size, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.globalAlpha = 1;
@@ -195,7 +171,6 @@ export default function ThreeLoader({ onComplete }: ThreeLoaderProps) {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const onCompleteRef = useRef(onComplete);
   const [isLeaving, setIsLeaving] = useState(false);
-  const [isWarping, setIsWarping] = useState(false);
   const [webglReady, setWebglReady] = useState(false);
 
   useEffect(() => {
@@ -205,8 +180,6 @@ export default function ThreeLoader({ onComplete }: ThreeLoaderProps) {
   useEffect(() => {
     const mount = mountRef.current;
     if (!mount) return;
-    const warpStart = ASSEMBLE_DURATION_MS + HOLD_DURATION_MS + DISPERSE_DURATION_MS;
-    const warpCueTimer = window.setTimeout(() => setIsWarping(true), Math.max(0, warpStart - 160));
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(40, 1, 1, 2000);
@@ -223,7 +196,6 @@ export default function ThreeLoader({ onComplete }: ThreeLoaderProps) {
         window.setTimeout(() => onCompleteRef.current(), 320);
       }, TOTAL_DURATION_MS - 320);
       return () => {
-        window.clearTimeout(warpCueTimer);
         window.clearTimeout(fallbackTimer);
       };
     }
@@ -273,8 +245,7 @@ export default function ThreeLoader({ onComplete }: ThreeLoaderProps) {
         (Math.random() - 0.5) * 0.5,
         (Math.random() - 0.5) * 0.5,
         2.2 + Math.random() * 3.4
-      ),
-      warpBias: 0.8 + Math.random() * 1.35
+      )
     }));
 
     const setupTargetsFromText = () => {
@@ -349,29 +320,20 @@ export default function ThreeLoader({ onComplete }: ThreeLoaderProps) {
       const elapsed = performance.now() - startedAt;
       const tAssemble = smoothstep(elapsed / ASSEMBLE_DURATION_MS);
       const disperseStart = ASSEMBLE_DURATION_MS + HOLD_DURATION_MS;
-      const warpStart = disperseStart + DISPERSE_DURATION_MS;
       const tDisperse = smoothstep((elapsed - disperseStart) / DISPERSE_DURATION_MS);
-      const tWarp = smoothstep((elapsed - warpStart) / WARP_DURATION_MS);
 
       for (let i = 0; i < dotCount; i += 1) {
         const dot = dots[i];
-        if (tDisperse <= 0 && tWarp <= 0) {
+        if (tDisperse <= 0) {
           const assembleStrength = 0.032 + tAssemble * 0.09;
           dot.current.lerp(dot.target, assembleStrength);
           const drift = Math.sin(elapsed * 0.00092 + i * 0.07) * (0.12 + tAssemble * 0.26);
           dot.current.z += drift;
-        } else if (tWarp <= 0) {
+        } else {
           const flyStrength = 1.7 + tDisperse * 4.6;
           dot.current.x += dot.velocity.x * 0.34;
           dot.current.y += dot.velocity.y * 0.34;
           dot.current.z += dot.velocity.z * flyStrength;
-        } else {
-          const radialKick = 1 + tWarp * 0.08 * dot.warpBias;
-          dot.current.x *= radialKick;
-          dot.current.y *= radialKick;
-          dot.current.x += dot.velocity.x * (2 + tWarp * 7);
-          dot.current.y += dot.velocity.y * (2 + tWarp * 7);
-          dot.current.z += (12 + dot.velocity.z * 4.2) * dot.warpBias * (0.35 + tWarp * 1.2);
         }
 
         positions[i * 3] = dot.current.x;
@@ -383,11 +345,9 @@ export default function ThreeLoader({ onComplete }: ThreeLoaderProps) {
       points.rotation.y = Math.sin(elapsed * 0.00022) * 0.1;
       points.rotation.x = Math.cos(elapsed * 0.00016) * 0.055;
       haloPoints.rotation.copy(points.rotation);
-      material.opacity = tWarp > 0 ? 1 - tWarp * 0.72 : tDisperse > 0 ? 0.96 * (1 - tDisperse) : 0.96;
-      haloMaterial.opacity = tWarp > 0 ? 0.32 * (1 - tWarp * 0.65) : tDisperse > 0 ? 0.22 * (1 - tDisperse) : 0.22;
-      material.size = 2.4 + tWarp * 4.2;
-      haloMaterial.size = 4.2 + tWarp * 8.8;
-      camera.position.z = 530 + Math.sin(elapsed * 0.00025) * 16 - tWarp * 90;
+      material.opacity = tDisperse > 0 ? 0.96 * (1 - tDisperse) : 0.96;
+      haloMaterial.opacity = tDisperse > 0 ? 0.22 * (1 - tDisperse) : 0.22;
+      camera.position.z = 530 + Math.sin(elapsed * 0.00025) * 16;
 
       renderer.render(scene, camera);
 
@@ -395,14 +355,13 @@ export default function ThreeLoader({ onComplete }: ThreeLoaderProps) {
         raf = requestAnimationFrame(animate);
       } else {
         setIsLeaving(true);
-        window.setTimeout(() => onCompleteRef.current(), 320);
+        window.setTimeout(() => onCompleteRef.current(), 260);
       }
     };
 
     raf = requestAnimationFrame(animate);
 
     return () => {
-      window.clearTimeout(warpCueTimer);
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
       geometry.dispose();
@@ -416,7 +375,7 @@ export default function ThreeLoader({ onComplete }: ThreeLoaderProps) {
   }, []);
 
   return (
-    <div className={`loader-overlay ${isLeaving ? "loader-overlay--leaving" : ""} ${isWarping ? "loader-overlay--warping" : ""}`}>
+    <div className={`loader-overlay ${isLeaving ? "loader-overlay--leaving" : ""}`}>
       {!webglReady ? (
         <FallbackParticleText />
       ) : null}

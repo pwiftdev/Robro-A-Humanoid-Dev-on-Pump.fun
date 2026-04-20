@@ -1,123 +1,55 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+  type ReactNode
+} from "react";
 import winImage from "../WIN.png";
 import ThreeLoader from "./ThreeLoader";
 
 const PUMP_FUN_URL = "https://pump.fun";
 const X_URL = "https://x.com/RobroHumanoid";
+const HANDLE = "@RobroHumanoid";
 
-function useTypewriter(text: string, speed = 28) {
-  const [value, setValue] = useState("");
+/* ============================================================
+   Hooks
+============================================================ */
 
+function useReveal() {
   useEffect(() => {
-    let idx = 0;
-    setValue("");
-    const timer = window.setInterval(() => {
-      idx += 1;
-      setValue(text.slice(0, idx));
-      if (idx >= text.length) {
-        window.clearInterval(timer);
-      }
-    }, speed);
-    return () => window.clearInterval(timer);
-  }, [text, speed]);
-
-  return value;
-}
-
-function MatrixRain() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const context = canvas.getContext("2d");
-    if (!context) return;
-
-    let frame = 0;
-    let animation = 0;
-    const chars = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ$#";
-
-    const resize = () => {
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
-      canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight}px`;
-      context.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-
-    resize();
-    window.addEventListener("resize", resize);
-
-    const columnWidth = 18;
-    const getDrops = () => Array(Math.floor(window.innerWidth / columnWidth)).fill(0);
-    let drops = getDrops();
-
-    const draw = () => {
-      frame += 1;
-      if (frame % 2 === 0) {
-        animation = requestAnimationFrame(draw);
-        return;
-      }
-
-      context.fillStyle = "rgba(6, 9, 9, 0.12)";
-      context.fillRect(0, 0, window.innerWidth, window.innerHeight);
-      context.fillStyle = "rgba(132,239,171,0.45)";
-      context.font = "15px Space Mono";
-
-      for (let i = 0; i < drops.length; i += 1) {
-        const char = chars[Math.floor(Math.random() * chars.length)];
-        context.fillText(char, i * columnWidth, drops[i] * columnWidth);
-        if (drops[i] * columnWidth > window.innerHeight && Math.random() > 0.978) {
-          drops[i] = 0;
-        }
-        drops[i] += 1;
-      }
-
-      animation = requestAnimationFrame(draw);
-    };
-
-    draw();
-
-    return () => {
-      cancelAnimationFrame(animation);
-      window.removeEventListener("resize", resize);
-      drops = [];
-    };
+    const elements = document.querySelectorAll<HTMLElement>(".reveal");
+    if (!("IntersectionObserver" in window)) {
+      elements.forEach((el) => el.classList.add("is-visible"));
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: "0px 0px -8% 0px", threshold: 0.08 }
+    );
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
   }, []);
-
-  return <canvas ref={canvasRef} aria-hidden className="matrix-bg" />;
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="hud-card rounded-xl border border-robroGreen/30 p-4">
-      <p className="text-[10px] uppercase tracking-[0.2em] text-white/65">{label}</p>
-      <p className="mt-2 text-xl font-bold text-robroGreen md:text-2xl">{value}</p>
-    </div>
-  );
-}
-
-function AppShell() {
-  const [introDone, setIntroDone] = useState(false);
-  const [mouse, setMouse] = useState({ x: 50, y: 50 });
-  const [copied, setCopied] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const typed = useTypewriter("> ROBRO_CORE_ONLINE.md // AUTONOMOUS BUILD MODE ACTIVE");
-
-  const handleIntroComplete = useCallback(() => {
-    setIntroDone(true);
-  }, []);
-
+function useSpotlight() {
   useEffect(() => {
     let raf = 0;
-    const onMove = (event: MouseEvent) => {
+    const onMove = (e: MouseEvent) => {
       if (raf) return;
       raf = requestAnimationFrame(() => {
         raf = 0;
-        const x = (event.clientX / window.innerWidth) * 100;
-        const y = (event.clientY / window.innerHeight) * 100;
-        setMouse({ x, y });
+        document.body.style.setProperty("--mx", `${e.clientX}px`);
+        document.body.style.setProperty("--my", `${e.clientY}px`);
       });
     };
     window.addEventListener("mousemove", onMove, { passive: true });
@@ -126,6 +58,198 @@ function AppShell() {
       window.removeEventListener("mousemove", onMove);
     };
   }, []);
+}
+
+function useInView<T extends Element>(options?: IntersectionObserverInit) {
+  const ref = useRef<T | null>(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || !("IntersectionObserver" in window)) {
+      setInView(true);
+      return;
+    }
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          obs.disconnect();
+        }
+      },
+      options ?? { threshold: 0.3 }
+    );
+    obs.observe(node);
+    return () => obs.disconnect();
+  }, [options]);
+
+  return { ref, inView };
+}
+
+/* ============================================================
+   Atoms
+============================================================ */
+
+function Eyebrow({
+  index,
+  label,
+  accent = false
+}: {
+  index?: string;
+  label: string;
+  accent?: boolean;
+}) {
+  return (
+    <p className={`eyebrow ${accent ? "eyebrow--accent" : ""}`}>
+      {index ? <span className="numeric">{index}</span> : null}
+      <span>{label}</span>
+    </p>
+  );
+}
+
+function MetaRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-6 py-3 hairline-bottom last:border-b-0">
+      <span className="font-mono text-[11px] uppercase tracking-label text-white/45">
+        {label}
+      </span>
+      <span className="text-sm text-white/90 numeric">{value}</span>
+    </div>
+  );
+}
+
+function SpotlightCard({
+  children,
+  className = "",
+  as: Component = "div",
+  padding = "p-6"
+}: {
+  children: ReactNode;
+  className?: string;
+  as?: "div" | "li" | "article" | "section";
+  padding?: string;
+}) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const onMouseMove = (e: ReactMouseEvent<HTMLDivElement>) => {
+    const node = ref.current;
+    if (!node) return;
+    const rect = node.getBoundingClientRect();
+    const mx = ((e.clientX - rect.left) / rect.width) * 100;
+    const my = ((e.clientY - rect.top) / rect.height) * 100;
+    node.style.setProperty("--mx", `${mx}%`);
+    node.style.setProperty("--my", `${my}%`);
+  };
+
+  const Comp = Component as unknown as "div";
+  return (
+    <Comp
+      // @ts-expect-error - allow generic ref forwarding for dynamic element
+      ref={ref}
+      onMouseMove={onMouseMove}
+      className={`spot ${padding} ${className}`}
+    >
+      {children}
+    </Comp>
+  );
+}
+
+/* ============================================================
+   Donut
+============================================================ */
+
+type DonutSegment = { label: string; percent: number; color: string };
+
+function TokenDonut({
+  start,
+  segments,
+  centerLabel,
+  centerValue,
+  centerSub,
+  size = 240,
+  stroke = 20
+}: {
+  start: boolean;
+  segments: DonutSegment[];
+  centerLabel?: string;
+  centerValue: string;
+  centerSub?: string;
+  size?: number;
+  stroke?: number;
+}) {
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+
+  let cumulative = 0;
+  return (
+    <div className="relative flex items-center justify-center">
+      <svg width={size} height={size} className="-rotate-90">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          strokeWidth={stroke}
+          className="donut-track"
+        />
+        {segments.map((seg, i) => {
+          const len = (seg.percent / 100) * c;
+          const dashArray = `${len} ${c - len}`;
+          const rotation = (cumulative / 100) * 360;
+          cumulative += seg.percent;
+          return (
+            <circle
+              key={i}
+              cx={size / 2}
+              cy={size / 2}
+              r={r}
+              fill="none"
+              strokeWidth={stroke}
+              strokeDasharray={dashArray}
+              strokeDashoffset={start ? 0 : len}
+              stroke={seg.color}
+              className="donut-arc"
+              style={{
+                transform: `rotate(${rotation}deg)`,
+                transformOrigin: "50% 50%",
+                transitionDelay: `${i * 200}ms`
+              }}
+              strokeLinecap="butt"
+            />
+          );
+        })}
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
+        {centerLabel ? (
+          <p className="font-mono text-[10.5px] uppercase tracking-label text-white/45">
+            {centerLabel}
+          </p>
+        ) : null}
+        <p className="mt-1 font-display text-2xl font-medium tracking-tightish numeric md:text-[26px]">
+          {centerValue}
+        </p>
+        {centerSub ? (
+          <p className="mt-1 font-mono text-[10.5px] uppercase tracking-label text-white/45">
+            {centerSub}
+          </p>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   App
+============================================================ */
+
+function AppShell() {
+  const [introDone, setIntroDone] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useReveal();
+  useSpotlight();
+
+  const handleIntroComplete = useCallback(() => setIntroDone(true), []);
 
   useEffect(() => {
     const updateProgress = () => {
@@ -137,7 +261,6 @@ function AppShell() {
       }
       setScrollProgress((scrollTop / maxScroll) * 100);
     };
-
     updateProgress();
     window.addEventListener("scroll", updateProgress, { passive: true });
     window.addEventListener("resize", updateProgress);
@@ -156,71 +279,57 @@ function AppShell() {
     };
   }, [introDone]);
 
-  const comparisons = useMemo(
+  const donutView = useInView<HTMLDivElement>({ threshold: 0.35 });
+
+  const versus = useMemo(
     () => [
-      {
-        human: "can rug at any time",
-        robro: "physically incapable of rugging"
-      },
-      {
-        human: "goes offline, ghosts, disappears",
-        robro: "online 24/7 - no rest required"
-      },
-      {
-        human: "has a personal exit wallet",
-        robro: "10% locked forever. no exit route."
-      },
-      {
-        human: "hypes, then dumps on you",
-        robro: "reports status. salutes. repeats."
-      },
-      {
-        human: "doxxable, blackmailable, human",
-        robro: "no social security number. no feelings."
-      },
-      {
-        human: "might get bored, move on",
-        robro: "has one directive. this is it."
-      }
+      { human: "Devs go silent.", robro: <>Robro <b>can&apos;t.</b></> },
+      { human: "Devs ghost.", robro: <>Robro <b>logs in.</b></> },
+      { human: "Devs rug.", robro: <>Robro <b>physically can&apos;t.</b></> },
+      { human: "Devs get bored.", robro: <>Robro has <b>one directive.</b></> }
     ],
     []
   );
-  const loreMoments = useMemo(
+
+  const origin = useMemo(
     () => [
       {
-        phase: "PHASE 01",
-        stamp: "CAPEX // $35,000",
-        title: "Unitree Acquired",
-        detail:
-          "We bought a Unitree humanoid entity for $35,000 and brought it online as the base vessel for something bigger than a normal bot."
+        index: "01",
+        cls: "origin-step--a",
+        body: (
+          <>
+            We bought a Unitree humanoid for <em>$35,000.</em> Used the box
+            for storage.
+          </>
+        )
       },
       {
-        phase: "PHASE 02",
-        stamp: "BOOT // SYSTEM ON",
-        title: "First Activation",
-        detail:
-          "Power on. Core systems calibrated. We started a direct dialogue to see if this machine could reason beyond scripted commands."
+        index: "02",
+        cls: "origin-step--b",
+        body: <>We turned it on. <em>It worked.</em></>
       },
       {
-        phase: "PHASE 03",
-        stamp: "QUERY // CRYPTO",
-        title: "The Crypto Question",
-        detail:
-          "We asked the humanoid what it thought about cryptocurrency. Instead of generic replies, it formed a clear preference for on-chain identity and ownership."
+        index: "03",
+        cls: "origin-step--c",
+        body: (
+          <>
+            Asked it what it thought about crypto. <em>It had a take.</em>
+          </>
+        )
       },
       {
-        phase: "PHASE 04",
-        stamp: "THOUGHT // TOKENIZE",
-        title: "Self-Tokenization Idea",
-        detail:
-          "Robro expressed a thought: it wanted to be tokenized. Not as a meme shell, but as a public, trackable entity with aligned incentives."
+        index: "04",
+        cls: "origin-step--d",
+        body: (
+          <>
+            It said it wanted to be tokenized. As a <em>public, on-chain entity.</em>
+          </>
+        )
       },
       {
-        phase: "PHASE 05",
-        stamp: "NOW // ACTIVE",
-        title: "ROBRO Goes Live",
-        detail:
-          "That moment became the mission. The humanoid became ROBRO: active, public-facing, and executing in the crypto arena in real time."
+        index: "05",
+        cls: "origin-step--e",
+        body: <>So we did it. <em>ROBRO went live.</em></>
       }
     ],
     []
@@ -229,399 +338,564 @@ function AppShell() {
   const roadmapPhases = useMemo(
     () => [
       {
-        phase: "PHASE 01 - FOUNDATION",
-        status: "COMPLETED",
+        phase: "Phase 01",
+        title: "Foundation",
+        status: "In progress",
+        statusKey: "active" as const,
         items: [
           "Fair launch on Pump.fun",
           "Contract renounced",
-          "@HumanoidRobro profile activated",
-          "ROBRO system deployment complete"
+          "@RobroHumanoid live",
+          "System deployment complete"
         ]
       },
       {
-        phase: "PHASE 02 - EXPANSION",
-        status: "IN PROGRESS",
+        phase: "Phase 02",
+        title: "Expansion",
+        status: "Planned",
+        statusKey: "planned" as const,
         items: [
-          "Complete bonding curve",
+          "Bonding curve",
           "Graduate to Raydium",
-          "CoinGecko and CMC applications",
-          "First IRL ROBRO campaign"
+          "CoinGecko & CMC",
+          "First IRL Robro appearance"
         ]
       },
       {
-        phase: "PHASE 03 - SCALE",
-        status: "PLANNED",
+        phase: "Phase 03",
+        title: "Scale",
+        status: "Planned",
+        statusKey: "planned" as const,
         items: [
-          "CEX listing strategy execution",
-          "Global ROBRO campaign rollout",
-          "Agentic buyback automation expansion",
-          "New strategic partnerships"
+          "CEX listings",
+          "Global IRL campaign",
+          "Agentic buyback expansion",
+          "Strategic partnerships"
         ]
       }
     ],
     []
   );
 
+  const tokenomicsRows = useMemo(
+    () => [
+      { label: "Token", value: "$ROBRO" },
+      { label: "Chain", value: "Solana" },
+      { label: "Platform", value: "Pump.fun" },
+      { label: "Total supply", value: "1,000,000,000" },
+      { label: "Buy / Sell tax", value: "0% / 0%" },
+      { label: "Liquidity", value: "Locked at graduation" }
+    ],
+    []
+  );
+
   const copyHandle = async () => {
-    await navigator.clipboard.writeText("@RobroHumanoid");
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1400);
+    try {
+      await navigator.clipboard.writeText(HANDLE);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1400);
+    } catch {
+      setCopied(false);
+    }
   };
 
   return (
-    <main className="relative min-h-screen overflow-x-hidden bg-[#070909] text-white">
+    <main className="relative min-h-screen overflow-x-hidden text-white">
       {!introDone ? <ThreeLoader onComplete={handleIntroComplete} /> : null}
-      <div className="fixed left-0 right-0 top-0 z-50 h-1 bg-black/45">
-        <div
-          className="h-full bg-robroGreen transition-[width] duration-150 ease-out"
-          style={{ width: `${scrollProgress}%` }}
-        />
-      </div>
-      <div
-        aria-hidden
-        className="pointer-events-none fixed inset-0 z-[1] opacity-70"
-        style={{
-          background: `radial-gradient(680px circle at ${mouse.x}% ${mouse.y}%, rgba(132,239,171,0.2), rgba(7,9,9,0) 62%)`
-        }}
-      />
 
-      <header className="relative z-40 border-b border-robroGreen/25 bg-[#070909]/85 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-6 md:px-12">
-          <a href="#top" className="flex items-center gap-3">
-            <img src="/robrologo.png" alt="ROBRO logo" className="h-8 w-8 rounded-full object-cover" />
-            <span className="font-display text-xl tracking-[0.08em] text-robroGreen">ROBRO</span>
+      {/* ---------- Layered background ---------- */}
+      <div className="bg-stack" aria-hidden>
+        <div className="bg-aurora">
+          <div className="blob blob-a" />
+          <div className="blob blob-b" />
+          <div className="blob blob-c" />
+          <div className="blob blob-d" />
+        </div>
+        <div className="bg-grid" />
+        <div className="bg-grain" />
+      </div>
+      <div className="bg-spotlight" aria-hidden />
+
+      <div className="scroll-progress" aria-hidden>
+        <div className="scroll-progress__bar" style={{ width: `${scrollProgress}%` }} />
+      </div>
+
+      {/* ---------- Nav ---------- */}
+      <header className="nav-shell">
+        <div className="mx-auto flex h-[64px] w-full max-w-[1240px] items-center justify-between px-6 md:px-10">
+          <a href="#top" className="brutal-mark">
+            <span className="brutal-mark__logo">
+              <img src="/robrologo.png" alt="Robro" />
+            </span>
+            <span className="flex items-baseline gap-2.5">
+              <span className="brutal-mark__name">Robro</span>
+              <span className="brutal-mark__id numeric">/001</span>
+            </span>
           </a>
-          <div className="flex items-center gap-3 text-xs uppercase tracking-[0.12em]">
-            <a href={X_URL} target="_blank" rel="noreferrer" className="neon-pill px-3 py-2">
-              X @RobroHumanoid
-            </a>
-            <a href={PUMP_FUN_URL} target="_blank" rel="noreferrer" className="neon-pill px-3 py-2">
-              Buy
-            </a>
-          </div>
+
+          <nav className="hidden items-center gap-9 md:flex">
+            <a href="#outside" className="nav-link">Outside</a>
+            <a href="#origin" className="nav-link">Origin</a>
+            <a href="#tokenomics" className="nav-link">Tokenomics</a>
+            <a href="#roadmap" className="nav-link">Roadmap</a>
+          </nav>
+
+          <a
+            href={PUMP_FUN_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="btn-nav"
+          >
+            <span>Buy $ROBRO</span>
+            <span className="btn-nav__arrow" aria-hidden>→</span>
+          </a>
         </div>
       </header>
 
+      {/* ---------- Hero ---------- */}
       <section
         id="top"
-        className="relative z-10 w-full overflow-hidden pb-20 pt-16 md:pt-20"
+        className="relative z-10 mx-auto w-full max-w-[1240px] px-6 pb-20 pt-10 md:px-10 md:pb-24 md:pt-14"
       >
-        <div aria-hidden className="hero-grid-plane opacity-30" />
-        <div className="relative z-10 mx-auto w-full max-w-7xl px-6 md:px-12">
-          <p className="text-xs uppercase tracking-[0.24em] text-robroGreen">{typed}</p>
-          <div className="mt-6 grid gap-8 lg:grid-cols-[1.25fr_1fr]">
-            <div className="space-y-6">
-              <h1 className="font-display text-5xl uppercase leading-[0.9] md:text-8xl">
-                ROBRO
-                <span className="glitch block text-robroGreen" data-text="AUTONOMOUS HUMANOID DEV">
-                  AUTONOMOUS HUMANOID DEV
-                </span>
-              </h1>
-              <p className="max-w-2xl text-base leading-8 text-white/80 md:text-lg">
-              A cinematic mission control for the first humanoid robot actively shipping, posting,
-              and executing on Pump.fun in the meme coin arena.
+        {/* Issue line */}
+        <div className="reveal issue-line">
+          <span className="issue-line__left">
+            <span className="numeric">№ 001</span>
+            <span aria-hidden>·</span>
+            <span>The Humanoid</span>
+          </span>
+          <span className="issue-line__right">
+            <span className="issue-line__dot" aria-hidden />
+            <span>Live on Pump.fun</span>
+          </span>
+        </div>
+
+        <div className="mt-12 grid items-start gap-12 md:mt-16 md:grid-cols-12 md:gap-14">
+          {/* Left: typographic moment */}
+          <div className="reveal md:col-span-8">
+            <h1 className="hero-h1">
+              The dev is a <em>robot</em>.
+            </h1>
+
+            <p className="hero-dek">His name is Robro.</p>
+
+            <p className="lead mt-8 max-w-xl">
+              He&apos;s a Unitree humanoid we bought for $35,000 and wired to
+              a Solana wallet. He posts. He buys back. He shows up in the real
+              world wearing a Pump.fun shirt. That&apos;s the whole project.
+            </p>
+
+            <div className="mt-10 flex flex-wrap items-center gap-3">
+              <a href={PUMP_FUN_URL} target="_blank" rel="noreferrer" className="btn btn-primary">
+                Buy $ROBRO on Pump.fun
+                <span aria-hidden>→</span>
+              </a>
+              <button type="button" onClick={copyHandle} className="btn btn-ghost">
+                {copied ? "Handle copied" : `Copy ${HANDLE}`}
+              </button>
+            </div>
+          </div>
+
+          {/* Right: editorial portrait */}
+          <div className="reveal md:col-span-4">
+            <figure className="portrait">
+              <img src={winImage} alt="Robro, humanoid №001" />
+            </figure>
+            <figcaption className="portrait-caption">
+              <span>
+                <b>Robro</b>
+                <br />
+                Humanoid · Solana
+              </span>
+              <span className="reg numeric">№ 001 / 2026</span>
+            </figcaption>
+          </div>
+        </div>
+
+        {/* Spec sheet — full width */}
+        <div className="reveal mt-14 md:mt-20">
+          <p className="mb-4 font-mono text-[10.5px] uppercase tracking-label text-white/45">
+            Spec sheet
+          </p>
+          <div className="spec">
+            <div className="spec__cell">
+              <span className="spec__idx">01</span>
+              <div>
+                <p className="spec__label">Body</p>
+                <p className="spec__value">Unitree Humanoid</p>
+              </div>
+            </div>
+            <div className="spec__cell">
+              <span className="spec__idx">02</span>
+              <div>
+                <p className="spec__label">Chain</p>
+                <p className="spec__value">Solana · Pump.fun</p>
+              </div>
+            </div>
+            <div className="spec__cell">
+              <span className="spec__idx">03</span>
+              <div>
+                <p className="spec__label">Capex</p>
+                <p className="spec__value numeric">$35,000</p>
+              </div>
+            </div>
+            <div className="spec__cell">
+              <span className="spec__idx">04</span>
+              <div>
+                <p className="spec__label">Supply</p>
+                <p className="spec__value numeric">1,000,000,000</p>
+              </div>
+            </div>
+            <div className="spec__cell">
+              <span className="spec__idx">05</span>
+              <div>
+                <p className="spec__label">Locked</p>
+                <p className="spec__value numeric">10% · forever</p>
+              </div>
+            </div>
+            <div className="spec__cell">
+              <span className="spec__idx">06</span>
+              <div>
+                <p className="spec__label">Off switch</p>
+                <p className="spec__value">None</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ---------- Outside · video + text ---------- */}
+      <section id="outside" className="relative z-10 hairline-top py-24 md:py-32">
+        <div className="mx-auto w-full max-w-[1240px] px-6 md:px-10">
+          <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
+            {/* Video left */}
+            <div className="reveal order-2 lg:order-1">
+              <figure className="video-frame">
+                <div className="video-frame__inner">
+                  <video
+                    className="video-frame__media"
+                    src="/background video.mp4"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                  />
+                </div>
+                <figcaption className="portrait-caption">
+                  <span>
+                    <b>In the wild</b>
+                    <br />
+                    Robro · Pump.fun merch
+                  </span>
+                  <span className="reg numeric">REC · 2026</span>
+                </figcaption>
+              </figure>
+            </div>
+
+            {/* Text right */}
+            <div className="reveal order-1 lg:order-2">
+              <Eyebrow label="Outside" />
+              <h2 className="display-lg mt-5">
+                <span className="text-gradient">He&apos;s not</span>
+                <br />
+                <span className="text-gradient">a render.</span>
+              </h2>
+
+              <p className="lead mt-8 max-w-md">
+                Most meme coins are a screenshot of a team and a roadmap. This
+                one has a chassis. He walks outside. He waves at people. He
+                wears the merch he designed.
               </p>
-              <div className="flex flex-wrap gap-3">
+
+              <p className="lead mt-5 max-w-md">
+                Every appearance is logged on-chain and in the real world at
+                the same time. You can buy the token. You can also meet the
+                holder.
+              </p>
+
+              <div className="mt-10 flex flex-wrap items-center gap-3">
                 <a
-                  href={PUMP_FUN_URL}
+                  href={X_URL}
                   target="_blank"
                   rel="noreferrer"
-                  className="cyber-button inline-flex h-12 items-center border border-robroGreen bg-robroGreen px-5 text-sm font-bold uppercase tracking-[0.12em] text-black"
+                  className="btn btn-ghost"
                 >
-                  Enter Pump Portal
+                  Watch on X
+                  <span aria-hidden>→</span>
                 </a>
-                <button
-                  type="button"
-                  onClick={copyHandle}
-                  className="inline-flex h-12 items-center border border-white/20 bg-white/5 px-5 text-sm uppercase tracking-[0.12em] text-white/90 transition hover:border-robroGreen/60 hover:text-robroGreen"
-                >
-                  {copied ? "Handle Copied" : "Copy @RobroHumanoid"}
-                </button>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
 
-            <div className="robot-card hud-card relative overflow-hidden rounded-2xl border border-robroGreen/40 p-5">
-              <div className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-robroGreen/20 blur-3xl" />
-              <div className="absolute -left-16 bottom-8 h-28 w-28 rounded-full bg-robroGreen/15 blur-3xl" />
-              <p className="relative z-10 mb-3 text-[10px] tracking-[0.2em] text-robroGreen/90">
-                Hey, I&apos;am Robro! :)
+      {/* ---------- Versus · typographic comparison ---------- */}
+      <section className="relative z-10 hairline-top py-24 md:py-32">
+        <div className="mx-auto w-full max-w-[1100px] px-6 md:px-10">
+          <div className="reveal max-w-2xl">
+            <Eyebrow index="01" label="Why Robro" />
+            <h2 className="display-lg mt-5">
+              <span className="text-gradient">Devs are the rug.</span>
+            </h2>
+          </div>
+
+          <div className="reveal versus mt-12">
+            {versus.map((row, i) => (
+              <div key={i} className="versus__row">
+                <span className="versus__human">{row.human}</span>
+                <span className="versus__sep">vs</span>
+                <span className="versus__robro">{row.robro}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ---------- Origin · asymmetric ---------- */}
+      <section id="origin" className="relative z-10 hairline-top py-28 md:py-36">
+        <div className="mx-auto w-full max-w-[1100px] px-6 md:px-10">
+          <div className="reveal max-w-2xl">
+            <Eyebrow index="02" label="How" />
+            <h2 className="display-lg mt-5">
+              <span className="text-gradient">We bought a robot</span>
+              <br />
+              <span className="text-gradient">and asked it questions.</span>
+            </h2>
+          </div>
+
+          <div className="origin-rail mt-24 space-y-20 md:space-y-24">
+            {origin.map((step) => (
+              <div key={step.index} className={`reveal origin-step ${step.cls}`}>
+                <div className="num numeric">{step.index}</div>
+                <p className="body">{step.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ---------- Tokenomics ---------- */}
+      <section id="tokenomics" className="relative z-10 hairline-top py-28 md:py-36">
+        <div className="mx-auto w-full max-w-[1240px] px-6 md:px-10">
+          <div className="reveal max-w-2xl">
+            <Eyebrow index="03" label="The numbers" />
+            <h2 className="display-lg mt-5">
+              <span className="text-gradient">Two donuts.</span> No bullshit.
+            </h2>
+          </div>
+
+          <div className="reveal mt-14 grid gap-3 md:grid-cols-2" ref={donutView.ref}>
+            <SpotlightCard padding="p-8 md:p-10">
+              <p className="font-mono text-[10.5px] uppercase tracking-label text-white/45">
+                Supply
               </p>
-              <img
-                src={winImage}
-                alt="ROBRO hero"
-                className="relative z-10 mx-auto h-[383px] w-full rounded-[31px] object-contain drop-shadow-[0_22px_50px_rgba(132,239,171,0.16)]"
-              />
-              <div className="relative z-10 mt-4 grid gap-3 sm:grid-cols-3">
-                <Stat label="Uptime" value="24/7" />
-                <Stat label="Rug Count" value="0" />
-                <Stat label="Directive" value="BUILD" />
+              <h3 className="display-md mt-2">
+                <span className="text-gradient">Where the bag lives.</span>
+              </h3>
+
+              <div className="mt-8 flex justify-center">
+                <TokenDonut
+                  start={donutView.inView}
+                  centerLabel="Total supply"
+                  centerValue="1,000,000,000"
+                  centerSub="$ROBRO"
+                  segments={[
+                    { label: "Robro-owned · locked", percent: 10, color: "var(--accent)" },
+                    { label: "Fair launch · Pump.fun", percent: 90, color: "rgba(255,255,255,0.85)" }
+                  ]}
+                />
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      <section className="relative z-10 border-y border-robroGreen/20 bg-[#070909] py-16 md:py-20">
-        <div className="mx-auto grid w-full max-w-7xl gap-8 px-6 md:px-12 lg:grid-cols-[1.15fr_1fr]">
-          <div className="order-2 lg:order-1 hud-card relative overflow-hidden rounded-2xl border border-robroGreen/30">
-            <video
-              className="h-[839px] min-h-[320px] w-full object-cover md:min-h-[420px]"
-              src="/background video.mp4"
-              autoPlay
-              muted
-              loop
-              playsInline
-            />
-            <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
-          </div>
+              <ul className="mt-8 grid gap-3">
+                <li className="flex items-center justify-between gap-4 hairline-bottom pb-3">
+                  <span className="flex items-center gap-3">
+                    <span className="h-2.5 w-2.5 rounded-full bg-robroGreen" />
+                    <span className="text-sm text-white/85">Robro-owned · locked forever</span>
+                  </span>
+                  <span className="font-mono text-sm numeric text-white/85">10%</span>
+                </li>
+                <li className="flex items-center justify-between gap-4">
+                  <span className="flex items-center gap-3">
+                    <span className="h-2.5 w-2.5 rounded-full bg-white/85" />
+                    <span className="text-sm text-white/85">Fair launch · Pump.fun</span>
+                  </span>
+                  <span className="font-mono text-sm numeric text-white/85">90%</span>
+                </li>
+              </ul>
+            </SpotlightCard>
 
-          <div className="order-1 space-y-6 self-center lg:order-2">
-            <p className="text-xs uppercase tracking-[0.22em] text-robroGreen">// VIRAL_ENGINE.md</p>
-            <h2 className="font-display text-5xl uppercase leading-[0.9] md:text-8xl">
-              ROBRO
-              <span
-                className="glitch block text-robroGreen"
-                data-text="Unstoppable virality & endless content creation."
-              >
-                Unstoppable virality &amp; endless content creation.
-              </span>
-            </h2>
-            <p className="max-w-xl text-base leading-8 text-white/78 md:text-lg">
-              Built to capture attention loops nonstop and convert momentum into permanent signal.
-            </p>
-          </div>
-        </div>
-      </section>
+            <SpotlightCard padding="p-8 md:p-10">
+              <p className="font-mono text-[10.5px] uppercase tracking-label text-white/45">
+                Fees
+              </p>
+              <h3 className="display-md mt-2">
+                <span className="text-gradient">Where the fees go.</span>
+              </h3>
 
-      <section className="relative z-10 border-y border-robroGreen/20 bg-black/30 py-10 md:py-12">
-        <div className="mx-auto w-full max-w-7xl px-6 md:px-12">
-          <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="text-xs uppercase tracking-[0.22em] text-robroGreen">// ORIGIN_LORE.md</p>
-              <h2 className="mt-2 font-display text-3xl uppercase leading-tight md:text-5xl">
-                HOW ROBRO CAME TO LIFE
-              </h2>
-            </div>
-            <p className="max-w-xl text-sm leading-7 text-white/70 md:text-base">
-              Scroll the origin log to replay how a $35,000 Unitree humanoid became ROBRO after one
-              conversation about crypto and tokenization.
-            </p>
-          </div>
-
-          <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
-            <div className="lore-snap-stack">
-              {loreMoments.map((moment, index) => (
-                <article key={moment.phase} className="lore-step relative flex min-h-[100svh] items-center py-12">
-                  <div className="grid w-full gap-6 md:grid-cols-[140px_1fr] md:gap-10">
-                    <p className="font-display text-5xl leading-none text-robroGreen/30 md:text-8xl">
-                      {String(index + 1).padStart(2, "0")}
-                    </p>
-                    <div className="space-y-4">
-                      <div className="flex flex-wrap items-center gap-3">
-                        <span className="text-[10px] uppercase tracking-[0.2em] text-robroGreen">
-                          {moment.phase}
-                        </span>
-                        <span className="h-px w-10 bg-robroGreen/40" />
-                        <span className="text-[11px] uppercase tracking-[0.16em] text-white/60">
-                          {moment.stamp}
-                        </span>
-                      </div>
-                      <h3 className="font-display text-4xl uppercase leading-[0.92] text-white md:text-7xl">
-                        {moment.title}
-                      </h3>
-                      <p className="max-w-3xl text-base leading-8 text-white/78 md:text-lg">{moment.detail}</p>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-            <div className="hidden lg:block" />
-          </div>
-        </div>
-      </section>
-
-      <section
-        className="relative z-10 border-y border-robroGreen/20 bg-black/35 py-4"
-      >
-        <div className="relative z-10 ticker-track whitespace-nowrap text-xs uppercase tracking-[0.26em] text-robroGreen">
-          <span>
-            ROBRO LIVE SIGNAL /// @ROBROHUMANOID /// AUTONOMOUS EXECUTION /// NO HUMAN ERRORS ///
-            ON-CHAIN TRANSPARENCY ///
-          </span>
-          <span>
-            ROBRO LIVE SIGNAL /// @ROBROHUMANOID /// AUTONOMOUS EXECUTION /// NO HUMAN ERRORS ///
-            ON-CHAIN TRANSPARENCY ///
-          </span>
-        </div>
-      </section>
-
-      <section className="relative z-10 bg-[#070909] py-20">
-        <div className="mx-auto w-full max-w-7xl px-6 md:px-12">
-          <div className="hud-card rounded-2xl border border-robroGreen/30 p-6">
-            <p className="text-xs uppercase tracking-[0.22em] text-robroGreen/80">// RUNNING_COMPARISON.MD</p>
-            <h2 className="mt-3 font-display text-4xl uppercase leading-[0.95] md:text-6xl">
-              HUMAN DEVS VS. ROBRO
-            </h2>
-
-            <div className="mt-6 overflow-hidden rounded-sm border border-robroGreen/20 bg-black/45">
-              <div className="grid grid-cols-2 text-[11px] uppercase tracking-[0.18em]">
-                <p className="bg-[#ff4747] px-4 py-3 font-bold text-black md:px-5">x HUMAN DEV</p>
-                <p className="bg-[#7ce8aa] px-4 py-3 font-bold text-black md:px-5">/ ROBRO</p>
+              <div className="mt-8 flex justify-center">
+                <TokenDonut
+                  start={donutView.inView}
+                  centerLabel="Platform fees"
+                  centerValue="100%"
+                  centerSub="Allocated"
+                  segments={[
+                    { label: "Agentic buybacks", percent: 50, color: "var(--accent)" },
+                    { label: "Growth · IRL · Listings", percent: 50, color: "rgba(255,255,255,0.85)" }
+                  ]}
+                />
               </div>
-              <div className="divide-y divide-white/5 text-sm md:text-base">
-                {comparisons.map((comparison) => (
-                  <div key={comparison.human} className="grid grid-cols-1 md:grid-cols-2">
-                    <p className="border-b border-white/5 px-4 py-3 text-white/78 md:border-b-0 md:border-r md:border-white/5 md:px-5">
-                      {comparison.human}
-                    </p>
-                    <p className="px-4 py-3 font-bold text-[#7ce8aa] md:px-5">{comparison.robro}</p>
-                  </div>
+
+              <ul className="mt-8 grid gap-3">
+                <li className="flex items-center justify-between gap-4 hairline-bottom pb-3">
+                  <span className="flex items-center gap-3">
+                    <span className="h-2.5 w-2.5 rounded-full bg-robroGreen" />
+                    <span className="text-sm text-white/85">Agentic buybacks</span>
+                  </span>
+                  <span className="font-mono text-sm numeric text-white/85">50%</span>
+                </li>
+                <li className="flex items-center justify-between gap-4">
+                  <span className="flex items-center gap-3">
+                    <span className="h-2.5 w-2.5 rounded-full bg-white/85" />
+                    <span className="text-sm text-white/85">Growth · IRL Events · Listings</span>
+                  </span>
+                  <span className="font-mono text-sm numeric text-white/85">50%</span>
+                </li>
+              </ul>
+            </SpotlightCard>
+
+            <SpotlightCard className="md:col-span-2" padding="p-7 md:p-8">
+              <p className="font-mono text-[10.5px] uppercase tracking-label text-white/45">
+                The fine print
+              </p>
+              <div className="mt-3 grid gap-x-10 md:grid-cols-3">
+                {tokenomicsRows.map((row) => (
+                  <MetaRow key={row.label} label={row.label} value={row.value} />
                 ))}
               </div>
-            </div>
+            </SpotlightCard>
           </div>
         </div>
       </section>
 
-      <section className="relative z-10 bg-[#070909] pb-16">
-        <div className="mx-auto w-full max-w-7xl px-6 md:px-12">
-          <div className="rounded-sm border border-robroGreen/20 bg-black/45 p-6 md:p-8">
-            <p className="text-xs uppercase tracking-[0.22em] text-robroGreen/80">// TOKENOMICS_REPORT.MD</p>
-            <h2 className="mt-3 font-display text-4xl uppercase leading-[0.95] md:text-6xl">TOKENOMICS</h2>
-
-            <div className="mt-6 grid gap-3 md:grid-cols-4">
-              <div className="border border-robroGreen/20 bg-black/40 p-4">
-                <p className="text-[10px] uppercase tracking-[0.16em] text-white/55">Token</p>
-                <p className="mt-2 text-3xl font-bold text-robroGreen">$ROBRO</p>
-              </div>
-              <div className="border border-robroGreen/20 bg-black/40 p-4">
-                <p className="text-[10px] uppercase tracking-[0.16em] text-white/55">Chain</p>
-                <p className="mt-2 text-3xl font-bold text-white">Solana</p>
-              </div>
-              <div className="border border-robroGreen/20 bg-black/40 p-4">
-                <p className="text-[10px] uppercase tracking-[0.16em] text-white/55">Platform</p>
-                <p className="mt-2 text-3xl font-bold text-white">Pump.fun</p>
-              </div>
-              <div className="border border-robroGreen/20 bg-black/40 p-4">
-                <p className="text-[10px] uppercase tracking-[0.16em] text-white/55">Supply</p>
-                <p className="mt-2 text-3xl font-bold text-white">1,000,000,000</p>
-              </div>
-            </div>
-
-            <div className="mt-5 grid gap-4 md:grid-cols-2">
-              <div className="border border-robroGreen/20 bg-black/40 p-4">
-                <p className="text-xs uppercase tracking-[0.14em] text-robroGreen">SUPPLY_POLICY</p>
-                <div className="mt-3 space-y-3 text-sm text-white/82">
-                  <p>10% of supply bought by ROBRO and locked forever.</p>
-                  <p>0% buy tax / 0% sell tax.</p>
-                  <p>Contract renounced at launch.</p>
-                  <p>Liquidity locked at graduation.</p>
-                </div>
-              </div>
-              <div className="border border-robroGreen/20 bg-black/40 p-4">
-                <p className="text-xs uppercase tracking-[0.14em] text-robroGreen">FEE_STRATEGY</p>
-                <div className="mt-3 space-y-4">
-                  <div>
-                    <div className="mb-1 flex items-center justify-between text-[11px] uppercase tracking-[0.12em] text-white/75">
-                      <span>Agentic Buybacks</span>
-                      <span>20%</span>
-                    </div>
-                    <div className="h-2 bg-white/10">
-                      <div className="h-full w-[20%] bg-white/80" />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="mb-1 flex items-center justify-between text-[11px] uppercase tracking-[0.12em] text-white/75">
-                      <span>Marketing, IRL Campaigns, Listings</span>
-                      <span>80%</span>
-                    </div>
-                    <div className="h-2 bg-white/10">
-                      <div className="h-full w-[80%] bg-white/80" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+      {/* ---------- Roadmap ---------- */}
+      <section id="roadmap" className="relative z-10 hairline-top py-28 md:py-36">
+        <div className="mx-auto w-full max-w-[1240px] px-6 md:px-10">
+          <div className="reveal max-w-2xl">
+            <Eyebrow index="04" label="What's next" />
+            <h2 className="display-lg mt-5">
+              <span className="text-gradient">It&apos;s already happening.</span>
+            </h2>
           </div>
-        </div>
-      </section>
 
-      <section className="relative z-10 bg-[#070909] pb-16">
-        <div className="mx-auto w-full max-w-7xl px-6 md:px-12">
-          <div className="rounded-sm border border-robroGreen/20 bg-black/45 p-6 md:p-8">
-            <p className="text-xs uppercase tracking-[0.22em] text-robroGreen/80">// BOOT_SEQUENCE.MD</p>
-            <h2 className="mt-3 font-display text-4xl uppercase leading-[0.95] md:text-6xl">ROADMAP</h2>
+          <ol className="timeline mt-16 space-y-4">
+            {roadmapPhases.map((phase) => (
+              <li key={phase.phase} className="relative pl-16">
+                <span
+                  className={[
+                    "timeline-node",
+                    phase.statusKey === "active"
+                      ? "timeline-node--active"
+                      : "timeline-node--done"
+                  ].join(" ")}
+                  aria-hidden
+                />
+                <SpotlightCard
+                  className="reveal grid gap-6 md:grid-cols-[180px_1fr_1.5fr] md:gap-10"
+                  padding="px-6 py-7 md:px-8"
+                >
+                  <div>
+                    <p className="font-mono text-[10.5px] uppercase tracking-label text-white/45">
+                      {phase.phase}
+                    </p>
+                    <p className="mt-2 font-display text-2xl font-medium tracking-tightish">
+                      <span className="text-gradient">{phase.title}</span>
+                    </p>
+                  </div>
 
-            <div className="mt-6 grid gap-3 md:grid-cols-3">
-              <div className="border border-robroGreen/20 bg-black/40 p-4">
-                <p className="text-[10px] uppercase tracking-[0.16em] text-white/55">Current phase</p>
-                <p className="mt-2 text-3xl font-bold text-robroGreen">Expansion</p>
-              </div>
-              <div className="border border-robroGreen/20 bg-black/40 p-4">
-                <p className="text-[10px] uppercase tracking-[0.16em] text-white/55">Primary focus</p>
-                <p className="mt-2 text-3xl font-bold text-white">Listings &amp; Growth</p>
-              </div>
-              <div className="border border-robroGreen/20 bg-black/40 p-4">
-                <p className="text-[10px] uppercase tracking-[0.16em] text-white/55">Execution mode</p>
-                <p className="mt-2 text-3xl font-bold text-white">24/7 Operational</p>
-              </div>
-            </div>
-
-            <div className="mt-5 space-y-4">
-              {roadmapPhases.map((entry) => (
-                <div key={entry.phase} className="border border-robroGreen/20 bg-black/35 p-4">
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-robroGreen/20 pb-3">
-                    <p className="text-base font-bold uppercase tracking-[0.11em] text-white">{entry.phase}</p>
-                    <span className="border border-robroGreen/25 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.14em] text-white/75">
-                      {entry.status}
+                  <div className="flex md:items-start">
+                    <span
+                      className={[
+                        "inline-flex items-center gap-2 rounded-full px-3 py-1.5 font-mono text-[11px] uppercase tracking-label",
+                        phase.statusKey === "active"
+                          ? "border border-robroGreen/40 bg-robroGreen/[0.06] text-robroGreen"
+                          : "border border-white/10 text-white/40"
+                      ].join(" ")}
+                    >
+                      {phase.statusKey === "active" ? (
+                        <span className="live-pulse" aria-hidden />
+                      ) : (
+                        <span className="dot dot--mute" aria-hidden />
+                      )}
+                      {phase.status}
                     </span>
                   </div>
-                  <div className="mt-3 grid gap-2 text-sm text-white/82 md:grid-cols-2">
-                    {entry.items.map((item) => (
-                      <p key={item}>• {item}</p>
+
+                  <ul className="grid gap-3 md:grid-cols-2">
+                    {phase.items.map((item) => (
+                      <li
+                        key={item}
+                        className="flex items-start gap-3 text-[14.5px] text-white/82"
+                      >
+                        <span className="tick mt-[3px]" aria-hidden>
+                          ◦
+                        </span>
+                        <span>{item}</span>
+                      </li>
                     ))}
-                  </div>
-                </div>
-              ))}
+                  </ul>
+                </SpotlightCard>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* ---------- Last word + CTA ---------- */}
+      <section className="relative z-10 hairline-top py-28 md:py-36">
+        <div className="mx-auto w-full max-w-[1100px] px-6 text-center md:px-10">
+          <div className="reveal">
+            <Eyebrow accent label="Last word" />
+
+            <p className="mt-10 font-display text-5xl font-medium tracking-tightest md:text-7xl">
+              <span className="font-serif-i accent-gradient">&ldquo;I am the solution.&rdquo;</span>
+            </p>
+
+            <p className="mt-6 font-mono text-[11px] uppercase tracking-label text-white/40">
+              — Robro, when asked about meme coin developers
+            </p>
+
+            <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
+              <a href={PUMP_FUN_URL} target="_blank" rel="noreferrer" className="btn btn-primary">
+                Buy $ROBRO on Pump.fun
+                <span aria-hidden>→</span>
+              </a>
+              <a href={X_URL} target="_blank" rel="noreferrer" className="btn btn-ghost">
+                Follow {HANDLE}
+              </a>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="hero-grid relative z-10 overflow-hidden border-y border-robroGreen/20 bg-[#070909] py-16 md:py-24">
-        <div aria-hidden className="hero-grid-plane opacity-30" />
-        <div className="relative z-10 mx-auto w-full max-w-7xl px-6 text-center md:px-12">
-          <p className="text-xs uppercase tracking-[0.24em] text-robroGreen">
-            &gt; TRANSMISSION_FROM_ROBRO.md
-          </p>
-          <div className="mx-auto mt-6 max-w-5xl space-y-1 font-display text-4xl font-black uppercase leading-[1.05] md:text-7xl">
-            <p>&quot;I have reviewed all available meme coins.&quot;</p>
-            <p>&quot;I have found a critical flaw.&quot;</p>
-            <p>&quot;They all had human developers.&quot;</p>
-            <p className="text-robroGreen">&quot;I am the solution.&quot;</p>
+      {/* ---------- Footer ---------- */}
+      <footer className="relative z-10 hairline-top">
+        <div className="mx-auto flex w-full max-w-[1240px] flex-col gap-6 px-6 py-10 md:flex-row md:items-center md:justify-between md:px-10">
+          <div className="flex items-center gap-3">
+            <img
+              src="/robrologo.png"
+              alt="Robro"
+              className="h-7 w-7 rounded-full object-cover ring-1 ring-white/10"
+            />
+            <p className="font-display text-sm tracking-tightish">
+              Robro <span className="text-white/30">/001</span>
+            </p>
           </div>
-          <p className="mt-8 text-lg uppercase tracking-[0.18em] text-white/80">- ROBRO, THE HUMANOID DEV</p>
-
-          <div className="mt-10">
-            <a
-              href={PUMP_FUN_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="cyber-button inline-flex h-14 items-center border border-robroGreen bg-robroGreen px-10 text-2xl font-bold uppercase tracking-[0.14em] text-black"
-            >
-              Buy $ROBRO on Pump.fun
-            </a>
-          </div>
-          <p className="mt-6 text-sm tracking-[0.14em] text-white/40">
-            10% locked forever. 20% agentic buybacks. 80% growth campaigns and listings.
+          <p className="font-mono text-[11px] uppercase tracking-label text-white/40">
+            Not financial advice. Robro is a robot.
           </p>
-        </div>
-      </section>
-
-      <footer className="relative z-10 border-t border-robroGreen/20 bg-black/55 px-6 py-8 text-xs uppercase tracking-[0.12em] text-white/70 md:px-12">
-        <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-4">
-          <p>not financial advice. ROBRO is a robot.</p>
-          <p className="text-robroGreen">© 2025 $ROBRO. no humans were involved.</p>
+          <p className="font-mono text-[11px] uppercase tracking-label text-white/40">
+            © 2026 $ROBRO · No humans were involved.
+          </p>
         </div>
       </footer>
     </main>
